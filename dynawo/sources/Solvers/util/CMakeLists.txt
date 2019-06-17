@@ -15,33 +15,12 @@ SET(DUMP_SOLVER_SOURCES
     DYNDumpSolver.cpp
     )
 
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR}
-                    ${LibXML_INCLUDE_DIR}
-                    ${SUNDIALS_INCLUDE_DIR}
-                    )
-
-INCLUDE_DIRECTORIES(../Common
-                    ../SolverIDA
-                    ../SolverSIM
-                    ../../Common
-                    ../../Modeler/Common/
-                    )
-
 ADD_EXECUTABLE(dumpSolver ${DUMP_SOLVER_SOURCES})
 
 TARGET_LINK_LIBRARIES(dumpSolver
-                      XMLSAXFormatter${LibXML_LINK_SUFFIX}
-                      XMLSAXParser${LibXML_LINK_SUFFIX}
-                      dynawo_API_PAR
-                      dynawo_Common
-                      dynawo_SolverCommon
-                      dynawo_SolverKINSOL
-                      dynawo_API_TL
-                      ${Boost_PROGRAM_OPTIONS_LIBRARY}
-                      pthread
-                      ${Boost_THREAD_LIBRARY}
-                      "-rdynamic"
-                    )
+    XMLSAXFormatter${LibXML_LINK_SUFFIX}
+    dynawo_SolverCommon
+    )
 
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   TARGET_LINK_LIBRARIES(dumpSolver "-lrt")

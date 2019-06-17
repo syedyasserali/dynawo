@@ -19,33 +19,23 @@ SET(SOLVER_KINSOL_INCLUDE_HEADERS
     DYNSolverKIN.h
     )
 
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR}
-                    ${KLU_INCLUDE_DIR}
-                    ${SUNDIALS_INCLUDE_DIR}
-                    )
-
-INCLUDE_DIRECTORIES(../../Common
-                    ../../Solvers/Common
-                    ../../Modeler/Common
-                    )
-
 ADD_LIBRARY(dynawo_SolverKINSOL ${LIBRARY_TYPE} ${SOLVER_KINSOL_SOURCES})
 
+TARGET_INCLUDE_DIRECTORIES(dynawo_SolverKINSOL SYSTEM PUBLIC ${KLU_INCLUDE_DIR})
+TARGET_INCLUDE_DIRECTORIES(dynawo_SolverKINSOL INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+
 TARGET_LINK_LIBRARIES(dynawo_SolverKINSOL
-                      dynawo_Common
-                      dynawo_SolverCommon
-                      ${SUNDIALS_KINSOL_LIBRARY}
-                      ${SUNDIALS_NVECSERIAL_LIBRARY}
-                      ${SUNDIALS_SUNLINSOLKLU_LIBRARY}
-                      ${SUITESPARSE_LIBRARIES}
-                      )
+    dynawo_SolverCommon
+    ${SUNDIALS_KINSOL_LIBRARY}
+    ${SUNDIALS_SUNLINSOLKLU_LIBRARY}
+    )
 
 IF(${NICSLU_FOUND})
-  TARGET_LINK_LIBRARIES(dynawo_SolverKINSOL ${NICSLU_LIBRARIES})
+    TARGET_LINK_LIBRARIES(dynawo_SolverKINSOL ${NICSLU_LIBRARIES})
 ENDIF()
 
 SET_TARGET_PROPERTIES(dynawo_SolverKINSOL PROPERTIES VERSION ${SOLVER_KINSOL_VERSION_STRING}
-                                              SOVERSION ${SOLVER_KINSOL_VERSION_MAJOR})
+                                                   SOVERSION ${SOLVER_KINSOL_VERSION_MAJOR})
 
 INSTALL(TARGETS dynawo_SolverKINSOL DESTINATION ${libdir})
 INSTALL(FILES ${SOLVER_KINSOL_INCLUDE_HEADERS} DESTINATION ${includedir})

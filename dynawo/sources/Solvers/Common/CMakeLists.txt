@@ -26,36 +26,37 @@ SET(SOLVER_COMMON_INCLUDE_HEADERS
     DYNParameterSolver.hpp
     )
 
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR}
-                    ${SUNDIALS_INCLUDE_DIR}
-                    )
-
-INCLUDE_DIRECTORIES(../../Common
-                    ../../Modeler/Common/
-                    ../../API/PAR/
-                    ../../API/TL
-                    )
-
 ADD_LIBRARY(dynawo_SolverCommon ${LIBRARY_TYPE} ${SOLVER_COMMON_SOURCES})
 
+TARGET_INCLUDE_DIRECTORIES(dynawo_SolverCommon SYSTEM PUBLIC ${SUNDIALS_INCLUDE_DIR})
+TARGET_INCLUDE_DIRECTORIES(dynawo_SolverCommon
+    INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+    PUBLIC
+        ../../Modeler/Common/
+        ../../API/PAR/
+        ../../API/TL
+    )
+
+
 TARGET_LINK_LIBRARIES(dynawo_SolverCommon
-                      dynawo_Common
-                      ${SUNDIALS_NVECSERIAL_LIBRARY}
-                      dl
-                      )
+    dynawo_Common
+    ${SUNDIALS_NVECSERIAL_LIBRARY}
+    ${CMAKE_DL_LIBS}
+    )
 
 IF(LIBRARY_TYPE STREQUAL "SHARED")
-  TARGET_LINK_LIBRARIES(dynawo_SolverCommon dynawo_Util)
+    TARGET_LINK_LIBRARIES(dynawo_SolverCommon dynawo_Util)
 ENDIF()
 
 SET_TARGET_PROPERTIES(dynawo_SolverCommon PROPERTIES VERSION ${SOLVER_COMMON_VERSION_STRING}
-                                              SOVERSION ${SOLVER_COMMON_VERSION_MAJOR})
+                                                   SOVERSION ${SOLVER_COMMON_VERSION_MAJOR})
 
 INSTALL(TARGETS dynawo_SolverCommon DESTINATION ${libdir})
 INSTALL(FILES ${SOLVER_COMMON_INCLUDE_HEADERS} DESTINATION ${includedir})
 
 SET(SOLVER_SHARED
-  solvers.par
-  )
+    solvers.par
+    )
 
 INSTALL(FILES ${SOLVER_SHARED} DESTINATION ${sharedir})
