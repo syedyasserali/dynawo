@@ -22,7 +22,7 @@ option(LibXML_SAX_BUILD_PARSER "Set to OFF to disable XML SAX parser build" ON)
 option(LibXML_BUILD_TESTS "Set to OFF to disable testings" ON)
 option(LibXML_SAX_BUILD_SAMPLES "Set to OFF to disable XML SAX samples build" ON)
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+#set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(LibXML_SAX_BUILD_SHARED TRUE CACHE BOOL "Build LibXML_SAX as shared library.")
 set(LibXML_SAX_BUILD_STATIC TRUE CACHE BOOL "Build LibXML_SAX as static library.")
@@ -34,8 +34,6 @@ endif()
 set(CXX11_ENABLED OFF CACHE BOOL "activates the C++11 compilation")
 
 set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Choose the type of build: Debug Release RelWithDebInfo MinSizeRel")
-
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -51,7 +49,10 @@ set(LibXML_INSTALL_LIBRARIES lib)
 set(LibXML_INSTALL_BINARIES bin)
 set(LibXML_INSTALL_INCLUDE include)
 
-if (CXX11_ENABLED)
+if(NOT MSVC)
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+
+if(CXX11_ENABLED)
   # Test if a C++11 flag is supported
   include(CheckCXXCompilerFlag)
   check_cxx_compiler_flag("-std=c++14" COMPILER_SUPPORTS_CXX14)
@@ -72,10 +73,11 @@ if (CXX11_ENABLED)
   endif()
 else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++98")
-endif ()
+endif()
+endif()
 
 # Add specific options for gcc
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+if('${CMAKE_CXX_COMPILER_ID}' STREQUAL 'GNU')
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -Wall -Wextra")
 
   if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.8)
@@ -164,14 +166,14 @@ set(LINK_SUFFIX_STATIC "-static")
 # prepare a few custom targets
 if (LibXML_BUILD_TESTS)
   add_custom_target(tests)
+endif ()
 
-  # tests are compiled against SHARED libraries if possible, against STATIC otherwise.
+# tests and samples are compiled against SHARED libraries if possible, against STATIC otherwise.
   if (LibXML_SAX_BUILD_STATIC AND NOT LibXML_SAX_BUILD_SHARED)
     set(LINK_SUFFIX_TEST ${LINK_SUFFIX_STATIC})
   else ()
     set(LINK_SUFFIX_TEST ${LINK_SUFFIX_SHARED})
   endif ()
-endif ()
 
 # include sub directories
 
