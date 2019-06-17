@@ -13,8 +13,8 @@ SET(API_JOB_VERSION_STRING ${DYNAWO_VERSION_STRING})
 SET(API_JOB_VERSION_MAJOR ${DYNAWO_VERSION_MAJOR})
 
 SET(API_JOB_SHARED
-  xsd/jobs.xsd
-  )
+    xsd/jobs.xsd
+    )
 
 INSTALL(FILES ${API_JOB_SHARED} DESTINATION ${sharedir}/xsd/)
 
@@ -46,7 +46,6 @@ SET(API_JOB_SOURCES
 SET(API_JOB_INCLUDE_HEADERS
     JOBXmlHandler.h
     JOBXmlImporter.h
-    JOBExport.h
     JOBAppenderEntry.h
     JOBConstraintsEntry.h
     JOBCurvesEntry.h
@@ -70,23 +69,17 @@ SET(API_JOB_INCLUDE_HEADERS
     JOBModelsDirEntry.h
     )
 
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR}
-                    ${LibXML_INCLUDE_DIR}
-                   )
-
-INCLUDE_DIRECTORIES(../../Common
-                   )
-
 ADD_LIBRARY(dynawo_API_JOB ${LIBRARY_TYPE} ${API_JOB_SOURCES})
 
+TARGET_INCLUDE_DIRECTORIES(dynawo_API_JOB INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 TARGET_LINK_LIBRARIES(dynawo_API_JOB
-  XMLSAXFormatter${LibXML_LINK_SUFFIX}
-  XMLSAXParser${LibXML_LINK_SUFFIX}
-  dynawo_Common
-  )
+    XMLSAXParser${LibXML_LINK_SUFFIX}
+    dynawo_Common
+    )
+
 SET_TARGET_PROPERTIES(dynawo_API_JOB PROPERTIES VERSION ${API_JOB_VERSION_STRING}
-                                           SOVERSION ${API_JOB_VERSION_MAJOR})
+                                              SOVERSION ${API_JOB_VERSION_MAJOR})
 
 INSTALL(TARGETS dynawo_API_JOB DESTINATION ${libdir})
 INSTALL(FILES ${API_JOB_INCLUDE_HEADERS} DESTINATION ${includedir})

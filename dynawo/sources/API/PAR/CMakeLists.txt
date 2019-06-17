@@ -13,7 +13,8 @@ SET(API_PAR_VERSION_STRING ${DYNAWO_VERSION_STRING})
 SET(API_PAR_VERSION_MAJOR ${DYNAWO_VERSION_MAJOR})
 
 SET(API_PAR_SHARED
-  xsd/parameters.xsd)
+    xsd/parameters.xsd
+    )
 
 INSTALL(FILES ${API_PAR_SHARED} DESTINATION ${sharedir}/xsd/)
 
@@ -44,18 +45,13 @@ SET(API_PAR_INCLUDE_HEADERS
     PARParametersSetCollectionFactory.h
     PARXmlExporter.h
     PARXmlImporter.h
-    PARExport.h
     PARExporter.h
     PARImporter.h
     )
 
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR}
-                    ${LibXML_INCLUDE_DIR}
-                    )
-
-INCLUDE_DIRECTORIES(../../Common)
-
 ADD_LIBRARY(dynawo_API_PAR ${LIBRARY_TYPE} ${API_PAR_SOURCES})
+
+TARGET_INCLUDE_DIRECTORIES(dynawo_API_PAR INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 TARGET_LINK_LIBRARIES(dynawo_API_PAR
     XMLSAXFormatter${LibXML_LINK_SUFFIX}
@@ -64,7 +60,7 @@ TARGET_LINK_LIBRARIES(dynawo_API_PAR
     )
 
 SET_TARGET_PROPERTIES(dynawo_API_PAR PROPERTIES VERSION ${API_PAR_VERSION_STRING}
-                                           SOVERSION ${API_PAR_VERSION_MAJOR})
+                                              SOVERSION ${API_PAR_VERSION_MAJOR})
 
 INSTALL(TARGETS dynawo_API_PAR DESTINATION ${libdir})
 INSTALL(FILES ${API_PAR_INCLUDE_HEADERS} DESTINATION ${includedir})

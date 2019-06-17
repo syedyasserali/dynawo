@@ -14,48 +14,42 @@ SET(API_CSTR_VERSION_MAJOR ${DYNAWO_VERSION_MAJOR})
 
 SET(API_CSTR_SHARED
     xsd/constraints.xsd
-   )
+    )
 
 INSTALL(FILES ${API_CSTR_SHARED} DESTINATION ${sharedir}/xsd/)
 
 SET(API_CSTR_SOURCES
-  CSTRConstraintImpl.cpp
-  CSTRConstraintFactory.cpp
-  CSTRConstraintsCollection.cpp
-  CSTRConstraintsCollectionImpl.cpp
-  CSTRConstraintsCollectionFactory.cpp
-  CSTRXmlExporter.cpp
-  CSTRTxtExporter.cpp
-  )
+    CSTRConstraintImpl.cpp
+    CSTRConstraintFactory.cpp
+    CSTRConstraintsCollection.cpp
+    CSTRConstraintsCollectionImpl.cpp
+    CSTRConstraintsCollectionFactory.cpp
+    CSTRXmlExporter.cpp
+    CSTRTxtExporter.cpp
+    )
 
 SET(API_CSTR_INCLUDE_HEADERS
-  CSTRConstraint.h
-  CSTRConstraintFactory.h
-  CSTRConstraintCommon.h
-  CSTRConstraintsCollection.h
-  CSTRConstraintsCollectionFactory.h
-  CSTRExport.h
-  CSTRExporter.h
-  CSTRXmlExporter.h
-  CSTRTxtExporter.h
-)
-
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR}
-                    ${LibXML_INCLUDE_DIR}
-                   )
-
-INCLUDE_DIRECTORIES(../../Common)
+    CSTRConstraint.h
+    CSTRConstraintFactory.h
+    CSTRConstraintCommon.h
+    CSTRConstraintsCollection.h
+    CSTRConstraintsCollectionFactory.h
+    CSTRExporter.h
+    CSTRXmlExporter.h
+    CSTRTxtExporter.h
+    )
 
 ADD_LIBRARY(dynawo_API_CSTR ${LIBRARY_TYPE} ${API_CSTR_SOURCES})
 
+TARGET_INCLUDE_DIRECTORIES(dynawo_API_CSTR INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+
 TARGET_LINK_LIBRARIES(dynawo_API_CSTR
-                      ${Boost_SYSTEM_LIBRARY}
-                      XMLSAXFormatter${LibXML_LINK_SUFFIX}
-                      dynawo_Common
-                      )
+    XMLSAXFormatter${LibXML_LINK_SUFFIX}
+    dynawo_Common
+    )
 
 SET_TARGET_PROPERTIES(dynawo_API_CSTR PROPERTIES VERSION ${API_CSTR_VERSION_STRING}
-                                                 SOVERSION ${API_CSTR_VERSION_MAJOR})
+                                               SOVERSION ${API_CSTR_VERSION_MAJOR})
 
 INSTALL(TARGETS dynawo_API_CSTR DESTINATION ${libdir})
 INSTALL(FILES ${API_CSTR_INCLUDE_HEADERS} DESTINATION ${includedir})
