@@ -21,7 +21,7 @@ find_package(XercesC REQUIRED)
 
 # disabling some gcc warnings with old XercesC.
 if(XercesC_VERSION VERSION_LESS "3.0.0")
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  if('${CMAKE_CXX_COMPILER_ID}' STREQUAL 'GNU')
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-overflow -Wno-cast-qual")
   endif()
 endif()
@@ -50,9 +50,10 @@ set(PARSER_SOURCES
   src/XercescStreamInputSource.cpp
 )
 
+if(NOT MSVC)
 # see README
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-parentheses -Wno-sign-compare")
-
+endif()
 
 if (LibXML_SAX_BUILD_SHARED)
   add_library(XMLSAXParser${LINK_SUFFIX_SHARED} SHARED ${PARSER_SOURCES})
@@ -69,13 +70,14 @@ if (LibXML_SAX_BUILD_SHARED)
 
   target_link_libraries(XMLSAXParser${LINK_SUFFIX_SHARED}
     ${XercesC_LIBRARIES}
-
   )
 
   set_target_properties(XMLSAXParser${LINK_SUFFIX_SHARED}
     PROPERTIES
+      OUTPUT_NAME XMLSAXParser
       SOVERSION ${LIBXML_VERSION_MAJOR}
       VERSION ${LIBXML_VERSION}
+      WINDOWS_EXPORT_ALL_SYMBOLS TRUE
   )
 
   install(TARGETS XMLSAXParser${LINK_SUFFIX_SHARED} EXPORT XMLSAXParser${LINK_SUFFIX_SHARED}-config
@@ -126,7 +128,7 @@ if (LibXML_SAX_BUILD_STATIC)
 
   set_target_properties(XMLSAXParser${LINK_SUFFIX_STATIC}
     PROPERTIES
-      OUTPUT_NAME XMLParser
+      OUTPUT_NAME XMLSAXParser
       SOVERSION ${LIBXML_VERSION_MAJOR}
       VERSION ${LIBXML_VERSION}
   )
