@@ -36,13 +36,13 @@ SET(DOCDIR_NAME doxygen)
 
 # Set some install directories variables
 SET(INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-SET(libdir ${INSTALL_PREFIX}/${LIBDIR_NAME})
-SET(includedir ${INSTALL_PREFIX}/${INCLUDEDIR_NAME})
-SET(docdir ${INSTALL_PREFIX}/${DOCDIR_NAME})
-SET(bindir ${INSTALL_PREFIX}/${BINDIR_NAME})
-SET(sharedir ${INSTALL_PREFIX}/${SHAREDIR_NAME})
-SET(sbindir ${INSTALL_PREFIX}/${SBINDIR_NAME})
-SET(ddbdir ${INSTALL_PREFIX}/${DDBDIR_NAME})
+GET_FILENAME_COMPONENT(libdir ${INSTALL_PREFIX}/${LIBDIR_NAME} ABSOLUTE)
+GET_FILENAME_COMPONENT(includedir ${INSTALL_PREFIX}/${INCLUDEDIR_NAME} ABSOLUTE)
+GET_FILENAME_COMPONENT(docdir ${INSTALL_PREFIX}/${DOCDIR_NAME} ABSOLUTE)
+GET_FILENAME_COMPONENT(bindir ${INSTALL_PREFIX}/${BINDIR_NAME} ABSOLUTE)
+GET_FILENAME_COMPONENT(sharedir ${INSTALL_PREFIX}/${SHAREDIR_NAME} ABSOLUTE)
+GET_FILENAME_COMPONENT(sbindir ${INSTALL_PREFIX}/${SBINDIR_NAME} ABSOLUTE)
+GET_FILENAME_COMPONENT(ddbdir ${INSTALL_PREFIX}/${DDBDIR_NAME} ABSOLUTE)
 
 # Use of OMC
 SET(OMC_INCLUDE_DIR ${INSTALL_OPENMODELICA}/include/omc/c)
@@ -51,100 +51,111 @@ ADD_DEFINITIONS(-D_OMC_${OPENMODELICA_VERSION})
 
 # If C++11 is enabled, check flags availability
 SET(CXX11_ENABLED ${CXX11_ENABLED} CACHE BOOL "")
-IF(CXX11_ENABLED)
-  # Test if a C++11 flag is supported
-  INCLUDE(CheckCXXCompilerFlag)
-  CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-  CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-  IF(COMPILER_SUPPORTS_CXX11)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DLANG_CXX11")
-  ELSEIF(COMPILER_SUPPORTS_CXX0X)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -DLANG_CXX0X")
-  ELSE()
-    MESSAGE(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Disabling C++11.")
-  ENDIF()
+
+IF(MSVC)
+    SET(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+    ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS)
+    ADD_DEFINITIONS(-DLANG_CXX11)
+ELSEIF(CXX11_ENABLED)
+    # Test if a C++11 flag is supported
+    INCLUDE(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+    CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+    IF(COMPILER_SUPPORTS_CXX11)
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DLANG_CXX11")
+    ELSEIF(COMPILER_SUPPORTS_CXX0X)
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -DLANG_CXX0X")
+    ELSE()
+        MESSAGE(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Disabling C++11.")
+    ENDIF()
 ELSE()
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++98")
 ENDIF()
 
-SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${DYNAWO_DEBUG_COMPILER_OPTION} -D_DEBUG_")
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${DYNAWO_DEBUG_COMPILER_OPTION}")
+IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    ADD_DEFINITIONS(-D_DEBUG_)
+ENDIF()
 
 SET(CMAKE_DYN_DICTIONARY_PATHS "$ENV{DYN_DICTIONARY_PATHS}")
 
 # Add specific options for gcc 4.8
-IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  # See all warnings in Debug mode
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -Werror -fdiagnostics-show-option -Wno-unused-local-typedefs")
-  # -Wswitch-enum : Warn whenever a switch statement has an index of enumerated type and lacks a case for one or more of the named codes of that enumeration
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wswitch-enum -Wunused")
-ELSEIF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Weverything")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-conditional-uninitialized")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-conversion")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-covered-switch-default")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-documentation")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-documentation-unknown-command")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-double-promotion")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-exit-time-destructors")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-extra-semi")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-float-conversion")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-float-equal")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-global-constructors")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-gnu-zero-variadic-macro-arguments")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-mismatched-tags")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-missing-noreturn")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-missing-prototypes")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-missing-variable-declarations")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-non-virtual-dtor")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-old-style-cast")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-padded")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-reserved-id-macro")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-return-type")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-shadow")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-shorten-64-to-32")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-sign-conversion")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-sometimes-uninitialized")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-undef")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-undefined-func-template")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unreachable-code-break")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unreachable-code-loop-increment")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unreachable-code-return")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unused-exception-parameter")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unused-macros")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unused-private-field")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-weak-vtables")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-used-but-marked-unused")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-overloaded-virtual")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-zero-as-null-pointer-constant")
-  SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror")
-  IF(CXX11_ENABLED)
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++98-compat")
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++98-compat-local-type-template-args")
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++98-compat-pedantic")
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-deprecated")
-  ELSE()
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-pedantic")
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-variadic-macros")
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++11-extensions")
-    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++11-long-long")
-  ENDIF()
+IF('${CMAKE_CXX_COMPILER_ID}' STREQUAL 'GNU')
+    # See all warnings in Debug mode
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -Werror -fdiagnostics-show-option -Wno-unused-local-typedefs")
+    # -Wswitch-enum : Warn whenever a switch statement has an index of enumerated type and lacks a case for one or more of the named codes of that enumeration
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wswitch-enum -Wunused")
+ELSEIF('${CMAKE_CXX_COMPILER_ID}' STREQUAL 'Clang')
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Weverything")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-conditional-uninitialized")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-conversion")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-covered-switch-default")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-documentation")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-documentation-unknown-command")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-double-promotion")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-exit-time-destructors")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-extra-semi")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-float-conversion")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-float-equal")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-global-constructors")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-gnu-zero-variadic-macro-arguments")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-mismatched-tags")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-missing-noreturn")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-missing-prototypes")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-missing-variable-declarations")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-non-virtual-dtor")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-old-style-cast")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-padded")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-reserved-id-macro")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-return-type")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-shadow")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-shorten-64-to-32")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-sign-conversion")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-sometimes-uninitialized")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-undef")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-undefined-func-template")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unreachable-code-break")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unreachable-code-loop-increment")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unreachable-code-return")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unused-exception-parameter")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unused-macros")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-unused-private-field")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-weak-vtables")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-used-but-marked-unused")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-overloaded-virtual")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-zero-as-null-pointer-constant")
+    SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Werror")
+    IF(CXX11_ENABLED)
+        SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++98-compat")
+        SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++98-compat-local-type-template-args")
+        SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++98-compat-pedantic")
+        SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-deprecated")
+    ELSE()
+        SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-pedantic")
+        SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-variadic-macros")
+        SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++11-extensions")
+        SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wno-c++11-long-long")
+    ENDIF()
 ENDIF()
+
+# Python Interpreter
+FIND_PACKAGE(PythonInterp REQUIRED)
 
 SET(BUILD_TESTS ${BUILD_TESTS} CACHE BOOL "Build tests.")
 IF(CMAKE_BUILD_TYPE STREQUAL "TestCoverage")
-  INCLUDE(TestCoverage)
+    INCLUDE(TestCoverage)
 ENDIF()
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Tests")
-  INCLUDE(UnitTest)
+    INCLUDE(UnitTest)
 ENDIF()
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Tests" OR CMAKE_BUILD_TYPE STREQUAL "TestCoverage")
-  SET(BUILD_TESTS true)
-  FIND_PACKAGE(GTest REQUIRED)
-  FIND_PACKAGE(GMock REQUIRED)
-  SET(UNITTEST_INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS})
-  SET(UNITTEST_LIBRARIES ${GMOCK_BOTH_LIBRARIES} ${GTEST_BOTH_LIBRARIES})
+    SET(BUILD_TESTS true)
+    FIND_PACKAGE(GTest REQUIRED)
+    FIND_PACKAGE(GMock REQUIRED)
+    SET(UNITTEST_INCLUDE_DIRS ${GMOCK_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS})
+    SET(UNITTEST_LIBRARIES ${GMOCK_BOTH_LIBRARIES} ${GTEST_BOTH_LIBRARIES})
 ENDIF()
 
 # For compatibility with old makefiles
@@ -155,6 +166,8 @@ IF(BOOST_USE_STATIC)
 ELSE()
   ADD_DEFINITIONS(-DBOOST_ALL_DYN_LINK)
 ENDIF()
+# Tell BOOST to disable auto linking 
+ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB)
 
 # For ADEPT
 SET(USE_ADEPT ${USE_ADEPT} CACHE BOOL "")
@@ -176,24 +189,24 @@ ELSE()
 ENDIF()
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Tests" OR  CMAKE_BUILD_TYPE STREQUAL "TestCoverage")
-  FIND_PACKAGE(Boost 1.59 REQUIRED
-    COMPONENTS
-    filesystem
-    program_options
-    serialization
-    system
-    log
-    iostreams
-    )
+    FIND_PACKAGE(Boost 1.59 REQUIRED
+        COMPONENTS
+            filesystem
+            program_options
+            serialization
+            system
+            log
+            iostreams
+        )
 ELSE()
-  FIND_PACKAGE(Boost 1.59 REQUIRED
-    COMPONENTS
-    filesystem
-    program_options
-    serialization
-    system
-    log
-    )
+    FIND_PACKAGE(Boost 1.59 REQUIRED
+        COMPONENTS
+            filesystem
+            program_options
+            serialization
+            system
+            log
+        )
 ENDIF()
 
 # SUITESPARSE
@@ -203,7 +216,7 @@ FIND_PACKAGE(SuiteSparse REQUIRED)
 FIND_PACKAGE(NICSLU)
 
 IF(${NICSLU_FOUND})
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWITH_NICSLU")
+    ADD_DEFINITIONS(-DWITH_NICSLU)
 ENDIF()
 
 # Sundials
@@ -213,7 +226,7 @@ FIND_PACKAGE(Sundials REQUIRED)
 FIND_PACKAGE(libZIP 1.3.0 REQUIRED)
 
 IF(LIBRARY_TYPE STREQUAL "STATIC")
-  SET(LibXML_USE_STATIC_LIBS TRUE)
+    SET(LibXML_USE_STATIC_LIBS TRUE)
 ENDIF()
 
 # libXML
@@ -221,32 +234,32 @@ FIND_PACKAGE(libXML 0.2.4 REQUIRED)
 
 # libIIDM
 FIND_PACKAGE(libIIDM 0.2.8 REQUIRED
-  COMPONENTS
-    core
-    xml
-    ext-activeseason
-    ext-activeseason-xml
-    ext-busbarsectionposition
-    ext-busbarsectionposition-xml
-    ext-connectableposition
-    ext-connectableposition-xml
-    ext-currentlimitsperseason
-    ext-currentlimitsperseason-xml
-    ext-generatoractivepowercontrol
-    ext-generatoractivepowercontrol-xml
-    ext-hvdcangledroopactivepowercontrol
-    ext-hvdcangledroopactivepowercontrol-xml
-    ext-hvdcoperatoractivepowerrange
-    ext-hvdcoperatoractivepowerrange-xml
-    ext-generatorentsoecategory
-    ext-generatorentsoecategory-xml
-    ext-generatorstartup
-    ext-generatorstartup-xml
-    ext-loaddetail
-    ext-loaddetail-xml
-    ext-standbyautomaton
-    ext-standbyautomaton-xml
-)
+    COMPONENTS
+        core
+        xml
+        ext-activeseason
+        ext-activeseason-xml
+        ext-busbarsectionposition
+        ext-busbarsectionposition-xml
+        ext-connectableposition
+        ext-connectableposition-xml
+        ext-currentlimitsperseason
+        ext-currentlimitsperseason-xml
+        ext-generatoractivepowercontrol
+        ext-generatoractivepowercontrol-xml
+        ext-hvdcangledroopactivepowercontrol
+        ext-hvdcangledroopactivepowercontrol-xml
+        ext-hvdcoperatoractivepowerrange
+        ext-hvdcoperatoractivepowerrange-xml
+        ext-generatorentsoecategory
+        ext-generatorentsoecategory-xml
+        ext-generatorstartup
+        ext-generatorstartup-xml
+        ext-loaddetail
+        ext-loaddetail-xml
+        ext-standbyautomaton
+        ext-standbyautomaton-xml
+    )
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/sources/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/sources/config.h @ONLY)
 
@@ -271,11 +284,11 @@ INCLUDE(../cpplint/cpplint.cmake)
 
 ADD_SUBDIRECTORY(sources)
 ADD_SUBDIRECTORY(sources/Common)
-ADD_SUBDIRECTORY(sources/Solvers)
-ADD_SUBDIRECTORY(sources/Modeler)
-ADD_SUBDIRECTORY(sources/Simulation)
-ADD_SUBDIRECTORY(sources/Launcher)
-ADD_SUBDIRECTORY(sources/ModelicaCompiler)
-ADD_SUBDIRECTORY(sources/Models)
-ADD_SUBDIRECTORY(sources/API)
-ADD_SUBDIRECTORY(doxygen)
+#ADD_SUBDIRECTORY(sources/Solvers)
+#ADD_SUBDIRECTORY(sources/Modeler)
+#ADD_SUBDIRECTORY(sources/Simulation)
+#ADD_SUBDIRECTORY(sources/Launcher)
+#ADD_SUBDIRECTORY(sources/ModelicaCompiler)
+#ADD_SUBDIRECTORY(sources/Models)
+#ADD_SUBDIRECTORY(sources/API)
+#ADD_SUBDIRECTORY(doxygen)

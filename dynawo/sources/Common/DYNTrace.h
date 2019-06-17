@@ -275,7 +275,7 @@ class Trace {
    */
   static TraceStream error(const std::string& tag = "");
 
-  static TraceStream::tspf endline;  ///< End of line function pointer for stream-like logging
+  static TraceStream& endline(TraceStream& os);  ///< End of line function for stream-like logging
 
  private:
   /**

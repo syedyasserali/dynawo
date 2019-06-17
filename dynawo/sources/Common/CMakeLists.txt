@@ -16,41 +16,41 @@ SET(UTIL_VERSION_MAJOR ${DYNAWO_VERSION_MAJOR})
 
 
 SET(DYNAWO_DICTIONARIES
-  Dictionaries/DYNError_en_GB.dic
-  Dictionaries/DYNTimeline_en_GB.dic
-  Dictionaries/DYNConstraint_en_GB.dic
-  Dictionaries/DYNLog_en_GB.dic
-  )
+    Dictionaries/DYNError_en_GB.dic
+    Dictionaries/DYNTimeline_en_GB.dic
+    Dictionaries/DYNConstraint_en_GB.dic
+    Dictionaries/DYNLog_en_GB.dic
+    )
 
 SET(DYNAWO_DICTIONARIES_MAPPING
-  Dictionaries/dictionaries_mapping.dic
-  )
+    Dictionaries/dictionaries_mapping.dic
+    )
 
 
 # custom target to generate files associated to dictionnaries
-ADD_CUSTOM_TARGET( create_keys_files ALL
-                  DEPENDS ${DYNAWO_DICTIONARIES})
+ADD_CUSTOM_TARGET(create_keys_files ALL DEPENDS ${DYNAWO_DICTIONARIES})
 
 ADD_CUSTOM_COMMAND(TARGET create_keys_files
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/Dictionaries/validateDictionaries.py --inputDir=${CMAKE_CURRENT_SOURCE_DIR}/Dictionaries,${CMAKE_DYN_DICTIONARY_PATHS} --outputDir=${CMAKE_CURRENT_SOURCE_DIR} --modelicaPackage=Dynawo.NonElectrical.Logs --modelicaDir=${CMAKE_CURRENT_SOURCE_DIR}/../Models/Modelica/Dynawo/NonElectrical/Logs/
-  COMMENT "Generate key files for dictionnaries"
-  )
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Dictionaries/validateDictionaries.py --inputDir=${CMAKE_CURRENT_SOURCE_DIR}/Dictionaries,${CMAKE_DYN_DICTIONARY_PATHS} --outputDir=${CMAKE_CURRENT_SOURCE_DIR} --modelicaPackage=Dynawo.NonElectrical.Logs --modelicaDir=${CMAKE_CURRENT_SOURCE_DIR}/../Models/Modelica/Dynawo/NonElectrical/Logs/
+    COMMENT "Generate key files for dictionnaries"
+    )
 
 # Find keys.cpp files (generated files)
 SET(CPP_KEYS
-  DYNTimeline_keys.cpp
-  DYNConstraint_keys.cpp
-  DYNError_keys.cpp
-  DYNLog_keys.cpp
-  )
+    DYNTimeline_keys.cpp
+    DYNConstraint_keys.cpp
+    DYNError_keys.cpp
+    DYNLog_keys.cpp
+    )
+
 # Find keys.h files  (generated files)
 SET(INCLUDE_KEYS
-  DYNTimeline_keys.h
-  DYNConstraint_keys.h
-  DYNError_keys.h
-  DYNLog_keys.h
-  )
+    DYNTimeline_keys.h
+    DYNConstraint_keys.h
+    DYNError_keys.h
+    DYNLog_keys.h
+    )
 
 SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/DYNTimeline_keys.cpp PROPERTIES GENERATED 1)
 SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/DYNConstraint_keys.cpp PROPERTIES GENERATED 1)
@@ -76,7 +76,6 @@ SET(COMMON_SOURCES
     DYNSparseMatrix.cpp
     ${CPP_KEYS}
     )
-
 
 SET(COMMON_INCLUDE_HEADERS
     DYNBitMask.h
@@ -111,40 +110,38 @@ SET(UTIL_INCLUDE_HEADERS
     DYNTimer.cpp
     )
 
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR}
-                    )
-
 ADD_LIBRARY(dynawo_Common ${LIBRARY_TYPE} ${COMMON_SOURCES})
 ADD_LIBRARY(dynawo_Util ${LIBRARY_TYPE} ${UTIL_SOURCES})
 
 ADD_DEPENDENCIES(dynawo_Common create_keys_files)
 
+TARGET_INCLUDE_DIRECTORIES(dynawo_Common INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+TARGET_INCLUDE_DIRECTORIES(dynawo_Common SYSTEM PUBLIC ${Boost_INCLUDE_DIR})
+
 TARGET_LINK_LIBRARIES(dynawo_Common
-    ${Boost_FILESYSTEM_LIBRARY}
-    ${Boost_LOG_LIBRARY}
-    ${Boost_SYSTEM_LIBRARY}
+    ${Boost_LIBRARIES}
     pthread
     ${Boost_THREAD_LIBRARY}
     ${Boost_LOG_LIBRARY}
     )
 
 SET_TARGET_PROPERTIES(dynawo_Common PROPERTIES VERSION ${COMMON_VERSION_STRING}
-                                        SOVERSION ${COMMON_VERSION_MAJOR})
+                                             SOVERSION ${COMMON_VERSION_MAJOR})
+
+TARGET_INCLUDE_DIRECTORIES(dynawo_Util INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+TARGET_INCLUDE_DIRECTORIES(dynawo_Util SYSTEM PUBLIC ${Boost_INCLUDE_DIR})
 
 TARGET_LINK_LIBRARIES(dynawo_Util
-    ${Boost_FILESYSTEM_LIBRARY}
-    ${Boost_SYSTEM_LIBRARY}
-    ${Boost_LOG_LIBRARY}
-    ${Boost_SYSTEM_LIBRARY}
+    ${Boost_LIBRARIES}
     )
 
 SET_TARGET_PROPERTIES(dynawo_Util PROPERTIES VERSION ${UTIL_VERSION_STRING}
-                                        SOVERSION ${UTIL_VERSION_MAJOR})
+                                           SOVERSION ${UTIL_VERSION_MAJOR})
 
 # PYTHON scripts for models
 SET(PYTHON_SCRIPTS_COMMON
-  Dictionaries/validateDictionaries.py
-  )
+    Dictionaries/validateDictionaries.py
+    )
 
 INSTALL(TARGETS dynawo_Common DESTINATION ${libdir})
 INSTALL(TARGETS dynawo_Util DESTINATION ${libdir})

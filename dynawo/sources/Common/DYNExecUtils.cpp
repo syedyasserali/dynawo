@@ -19,9 +19,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/types.h>
+#ifndef _MSC_VER
+#include <wait.h>   // waitpid
 #include <sys/wait.h>   // waitpid
-#include <cstring>
 #include <unistd.h>
+#endif
+#include <cstring>
 #include <fcntl.h>
 #include <cerrno>
 #include <sstream>
@@ -33,10 +36,14 @@ using std::stringstream;
 
 string
 prettyPath(const std::string & path) {
+#if _MSC_VER
+  char *real_path = _fullpath(NULL, path.c_str(), _MAX_PATH);
+#else
   // only works if the file or the path exists !!!
   char *real_path = realpath(path.c_str(), NULL);
-  string prettyPath(real_path);
-  free(real_path);
+#endif
+  string prettyPath(real_path?real_path:"");
+  if (real_path) free(real_path);
   return prettyPath;
 }
 
@@ -81,6 +88,12 @@ void
 executeCommand(const std::string & command, std::stringstream & ss) {
   ss << "Executing command : " << command << std::endl;
   char buferr[256];
+
+#ifdef _MSC_UNIMPLEMENTED
+  #define STRING2(x)  #x
+  #define STRING(x)   STRING2(x)
+  #pragma message(__FILE__ "(" STRING(__LINE__) "): warning RTE: " __FUNCTION__ "() is not yet implemented for MSVC compiler, this function does nothing !")
+#else
   std::string command1 = command + " 2>&1";
 
   // Creation of a pipe between the exit and the entry
@@ -132,6 +145,7 @@ executeCommand(const std::string & command, std::stringstream & ss) {
     execl("/bin/bash", "/bin/bash", "-c", command1.c_str(), reinterpret_cast<char*> (NULL));
     _exit(EXIT_FAILURE);
   }
+#endif
 }
 
 bool hasEnvVar(std::string const& key) {
