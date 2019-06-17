@@ -22,6 +22,11 @@
 
 #include <cmath>
 
+// M_PIl is a GNU extension
+#ifndef M_PIl
+  #define M_PIl ((long double)M_PI)
+#endif
+
 namespace DYN {
 static const double SNREF = 100.;  ///< per-unitage base Sn
 static const double VALDEF = 999999;  ///< VALDEF a constant

@@ -65,45 +65,32 @@ SET(MODELER_INCLUDE_HEADERS
     DYNStaticRefInterface.h
     )
 
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR}
-                    ${LibXML_INCLUDE_DIR}
-                    )
-
-INCLUDE_DIRECTORIES(../../API/PAR
-                    ../../API/TL
-                    ../../API/CRV
-                    ../../API/FS
-                    ../../API/CSTR
-                    ../../API/DYD
-                    ../../API/EXTVAR
-                    ../../Common
-                    ../Common
-                    ../DataInterface
-                    ../../Common
-                    )
-
 ADD_LIBRARY(dynawo_ModelerCommon ${LIBRARY_TYPE} ${MODELER_SOURCES})
 
+TARGET_INCLUDE_DIRECTORIES(dynawo_ModelerCommon
+    INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+    PUBLIC
+        ../../API/TL
+        ../../API/CSTR
+        ../DataInterface
+    )
+
 TARGET_LINK_LIBRARIES(dynawo_ModelerCommon
-                      XMLSAXFormatter${LibXML_LINK_SUFFIX}
-                      XMLSAXParser${LibXML_LINK_SUFFIX}
-                      dynawo_API_PAR
-                      dynawo_API_TL
-                      dynawo_API_CRV
-                      dynawo_API_FS
-                      dynawo_API_CSTR
-                      dynawo_API_EXTVAR
-                      dynawo_API_DYD
-                      dl
-                      dynawo_Common
-                      )
+    dynawo_API_PAR
+    dynawo_API_CRV
+    dynawo_API_FS
+    dynawo_API_EXTVAR
+    dynawo_API_DYD
+    ${CMAKE_DL_LIBS}
+    )
 
 IF(LIBRARY_TYPE STREQUAL "SHARED")
-  TARGET_LINK_LIBRARIES(dynawo_ModelerCommon dynawo_Util)
+    TARGET_LINK_LIBRARIES(dynawo_ModelerCommon dynawo_Util)
 ENDIF()
 
 SET_TARGET_PROPERTIES(dynawo_ModelerCommon PROPERTIES VERSION ${MODELER_VERSION_STRING}
-                                         SOVERSION ${MODELER_VERSION_MAJOR})
+                                                    SOVERSION ${MODELER_VERSION_MAJOR})
 
 INSTALL(TARGETS dynawo_ModelerCommon DESTINATION ${libdir})
 INSTALL(FILES ${MODELER_INCLUDE_HEADERS} DESTINATION ${includedir})

@@ -41,15 +41,6 @@ SET(DATA_INTERFACE_SOURCES
     DYNHvdcLineInterfaceIIDM.cpp
     )
 
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR}
-                    ${LibIIDM_CORE_INCLUDE_DIR}
-                    ${LibIIDM_EXT_STANDBYAUTOMATON_INCLUDE_DIR}
-                    )
-
-INCLUDE_DIRECTORIES(../../Common
-                    ../Common
-                    )
-
 SET(DATA_INTERFACE_INCLUDE_HEADERS
     DYNDataInterface.h
     DYNDataInterfaceIIDM.h
@@ -57,12 +48,14 @@ SET(DATA_INTERFACE_INCLUDE_HEADERS
 
 ADD_LIBRARY(dynawo_DataInterface ${LIBRARY_TYPE} ${DATA_INTERFACE_SOURCES})
 
+TARGET_COMPILE_DEFINITIONS(dynawo_DataInterface PRIVATE $<$<BOOL:${MSVC}>:_USE_MATH_DEFINES>)
+
+TARGET_INCLUDE_DIRECTORIES(dynawo_DataInterface INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+
 TARGET_LINK_LIBRARIES(dynawo_DataInterface
-                      dynawo_Common
-                      dynawo_ModelerCommon
-                      iidm
-                      iidm-ext-standbyautomaton
-                   )
+    dynawo_ModelerCommon
+    iidm
+    )
 
 IF(LIBRARY_TYPE STREQUAL "SHARED")
   TARGET_LINK_LIBRARIES(dynawo_DataInterface dynawo_Util)
@@ -70,7 +63,7 @@ ENDIF()
 
 
 SET_TARGET_PROPERTIES(dynawo_DataInterface PROPERTIES VERSION ${DATA_INTERFACE_VERSION_STRING}
-                                               SOVERSION ${DATA_INTERFACE_VERSION_MAJOR})
+                                                    SOVERSION ${DATA_INTERFACE_VERSION_MAJOR})
 
 INSTALL(TARGETS dynawo_DataInterface DESTINATION ${libdir})
 INSTALL(FILES ${DATA_INTERFACE_INCLUDE_HEADERS} DESTINATION ${includedir})
