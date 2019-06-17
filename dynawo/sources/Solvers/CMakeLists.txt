@@ -12,51 +12,52 @@
 # Custom target for describing solvers
 #
 ADD_CUSTOM_TARGET(solvers
-                  DEPENDS
-                    SOLVERS_FILES_INSTALL
-                  COMMENT "Describing solvers for Dynawo"
-                 )
+    DEPENDS SOLVERS_FILES_INSTALL
+    COMMENT "Describing solvers for Dynawo"
+    )
 
 #
 # Target used to install solvers files in ddbdir
 # (.so and .desc.xml)
 #
 ADD_CUSTOM_TARGET(SOLVERS_FILES_INSTALL
-                  COMMENT "Installing solvers"
-                 )
+    COMMENT "Installing solvers"
+    )
 
 #
 # Macro called to generate a solver's description
 # file into ddbdir. Automatically adds the dependencies
 # to the main targets.
 #
+SET(libpath "PATH=${libdir};${LibXML_SAX_FORMATTER_BIN_DIR};${SUNDIALS_HOME}/lib;${SUITESPARSE_HOME}/bin;${Boost_LIBRARY_DIR_DEBUG};${dlfcn-win32_INCLUDE_DIRS}/../bin;$ENV{PATH}")
+message("${libpath}")
 
-MACRO(DESC_SOLVER
-       SOLVER_NAME
-     )
+MACRO(DESC_SOLVER SOLVER_NAME)
     #
     # Generates .desc.xml file for the solver
     #
-    ADD_CUSTOM_COMMAND(OUTPUT ${SOLVER_NAME}.desc.xml
-                       DEPENDS ${SOLVER_NAME} dumpSolver
-                       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                       COMMAND
-                           ${sbindir}/dumpSolver -m ${CMAKE_CURRENT_BINARY_DIR}/lib${SOLVER_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX} -o ${CMAKE_CURRENT_BINARY_DIR}/lib${SOLVER_NAME}.desc.xml \;
-                       COMMENT "Generating ${SOLVER_NAME} description file"
-                      )
+    ADD_CUSTOM_COMMAND(
+        OUTPUT ${SOLVER_NAME}.desc.xml
+        DEPENDS ${SOLVER_NAME} dumpSolver
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMAND
+            ${CMAKE_COMMAND} -E env "${libpath}" $<TARGET_FILE:dumpSolver> -m $<TARGET_FILE:${SOLVER_NAME}> -o ${CMAKE_SHARED_LIBRARY_PREFIX}${SOLVER_NAME}.desc.xml
+        COMMENT "Generating ${SOLVER_NAME} description file"
+        )
 
     #
     # Install built library and generated .desc.xml file into bdddir
     #
     ADD_CUSTOM_TARGET(${SOLVER_NAME}.desc
-                      DEPENDS
-                          ${SOLVER_NAME}
-                          ${SOLVER_NAME}.desc.xml
-                          CREATE_DDBDIR
-                      COMMAND
-                          ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/lib${SOLVER_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX} ${ddbdir}/lib${SOLVER_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX} \;
-                          ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/lib${SOLVER_NAME}.desc.xml ${ddbdir}/lib${SOLVER_NAME}.desc.xml
-                     )
+        DEPENDS
+            ${SOLVER_NAME}
+            ${SOLVER_NAME}.desc.xml
+            CREATE_DDBDIR
+        COMMAND
+            ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${SOLVER_NAME}> ${ddbdir}/
+        COMMAND
+            ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}${SOLVER_NAME}.desc.xml ${ddbdir}/
+        )
 
     ADD_DEPENDENCIES(SOLVERS_FILES_INSTALL ${SOLVER_NAME}.desc)
 ENDMACRO(DESC_SOLVER)

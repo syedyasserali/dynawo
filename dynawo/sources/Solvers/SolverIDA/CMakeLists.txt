@@ -19,36 +19,17 @@ SET(SOLVER_IDA_INCLUDE_HEADERS
     DYNSolverIDA.h
     )
 
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR}
-                    ${KLU_INCLUDE_DIR}
-                    ${SUNDIALS_INCLUDE_DIR}
-                    )
-
-INCLUDE_DIRECTORIES(../../API/PAR
-                    ../../Common
-                    ../../Modeler/Common
-                    ../Common
-                    ../SolverKINSOL
-                    )
-
 ADD_LIBRARY(dynawo_SolverIDA SHARED ${SOLVER_IDA_SOURCES})
 
+TARGET_INCLUDE_DIRECTORIES(dynawo_SolverIDA INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+
 TARGET_LINK_LIBRARIES(dynawo_SolverIDA
-                      dynawo_API_PAR
-                      dynawo_Common
-                      dynawo_SolverCommon
-                      dynawo_SolverKINSOL
-                      ${SUNDIALS_IDA_LIBRARY}
-                      ${SUNDIALS_NVECSERIAL_LIBRARY}
-                      ${SUITESPARSE_LIBRARIES}
-                      ${Boost_ATOMIC_LIBRARY}
-                      ${Boost_DATE_TIME_LIBRARY}
-                      ${Boost_REGEX_LIBRARY}
-                      ${Boost_CHRONO_LIBRARY}
-                      )
+    dynawo_SolverKINSOL
+    ${SUNDIALS_IDA_LIBRARY}
+    )
 
 IF(${NICSLU_FOUND})
-  TARGET_LINK_LIBRARIES(dynawo_SolverIDA ${NICSLU_LIBRARIES})
+    TARGET_LINK_LIBRARIES(dynawo_SolverIDA ${NICSLU_LIBRARIES})
 ENDIF()
 
 IF (APPLE)
@@ -58,7 +39,7 @@ IF (APPLE)
 ENDIF()
 
 SET_TARGET_PROPERTIES(dynawo_SolverIDA PROPERTIES VERSION ${SOLVER_IDA_VERSION_STRING}
-                                           SOVERSION ${SOLVER_IDA_VERSION_MAJOR})
+                                                SOVERSION ${SOLVER_IDA_VERSION_MAJOR})
 
 INSTALL(TARGETS dynawo_SolverIDA DESTINATION ${libdir})
 INSTALL(FILES ${SOLVER_IDA_INCLUDE_HEADERS} DESTINATION ${includedir})

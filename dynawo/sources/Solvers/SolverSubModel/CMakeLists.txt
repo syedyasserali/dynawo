@@ -18,33 +18,22 @@ SET(SOLVER_SUBMODEL_SOURCES
     DYNSolverSubModel.cpp
     )
 
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR}
-                    ${KLU_INCLUDE_DIR}
-                    ${SUNDIALS_INCLUDE_DIR}
-                    )
-
-INCLUDE_DIRECTORIES(../Common
-                    ../../Modeler/Common
-                    ../../Common
-                    )
-
 ADD_LIBRARY(dynawo_SolverSubModel ${LIBRARY_TYPE} ${SOLVER_SUBMODEL_SOURCES})
 
+TARGET_INCLUDE_DIRECTORIES(dynawo_SolverSubModel SYSTEM PUBLIC ${KLU_INCLUDE_DIR})
+TARGET_INCLUDE_DIRECTORIES(dynawo_SolverSubModel INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+
 TARGET_LINK_LIBRARIES(dynawo_SolverSubModel
-                      ${SUNDIALS_NVECSERIAL_LIBRARY}
-                      ${SUNDIALS_KINSOL_LIBRARY}
-                      ${SUNDIALS_SUNLINSOLKLU_LIBRARY}
-                      ${SUNDIALS_SUNMATRIXSPARSE_LIBRARY}
-                      ${SUITESPARSE_LIBRARIES}
-                      dynawo_SolverCommon
-                      dynawo_ModelerCommon
-                      )
+    ${SUNDIALS_KINSOL_LIBRARY}
+    ${SUNDIALS_SUNLINSOLKLU_LIBRARY}
+    dynawo_SolverCommon
+    )
 
 IF(${NICSLU_FOUND})
-  TARGET_LINK_LIBRARIES(dynawo_SolverSubModel ${NICSLU_LIBRARIES})
+    TARGET_LINK_LIBRARIES(dynawo_SolverSubModel ${NICSLU_LIBRARIES})
 ENDIF()
 
 SET_TARGET_PROPERTIES(dynawo_SolverSubModel PROPERTIES VERSION ${SOLVER_SUBMODEL_VERSION_STRING}
-                                              SOVERSION ${SOLVER_SUBMODEL_VERSION_MAJOR})
+                                                     SOVERSION ${SOLVER_SUBMODEL_VERSION_MAJOR})
 
 INSTALL(TARGETS dynawo_SolverSubModel DESTINATION ${libdir})

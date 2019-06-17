@@ -56,6 +56,10 @@ IF(MSVC)
     SET(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
     ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS)
     ADD_DEFINITIONS(-DLANG_CXX11)
+
+    FIND_PACKAGE(dlfcn-win32 REQUIRED)
+    SET(CMAKE_DL_LIBS dlfcn-win32::dl)
+
 ELSEIF(CXX11_ENABLED)
     # Test if a C++11 flag is supported
     INCLUDE(CheckCXXCompilerFlag)
@@ -263,6 +267,14 @@ FIND_PACKAGE(libIIDM 0.2.8 REQUIRED
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/sources/config.h.in ${CMAKE_CURRENT_SOURCE_DIR}/sources/config.h @ONLY)
 
+#
+# Target used to ensure that ddbdir directory is created
+#
+ADD_CUSTOM_TARGET(CREATE_DDBDIR
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${ddbdir}
+    )
+
+SET(CMAKE_SKIP_RPATH TRUE)
 if (APPLE)
   set(CMAKE_MACOSX_RPATH True)
 
@@ -284,7 +296,7 @@ INCLUDE(../cpplint/cpplint.cmake)
 
 ADD_SUBDIRECTORY(sources)
 ADD_SUBDIRECTORY(sources/Common)
-#ADD_SUBDIRECTORY(sources/Solvers)
+ADD_SUBDIRECTORY(sources/Solvers)
 #ADD_SUBDIRECTORY(sources/Modeler)
 #ADD_SUBDIRECTORY(sources/Simulation)
 #ADD_SUBDIRECTORY(sources/Launcher)

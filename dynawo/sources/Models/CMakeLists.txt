@@ -33,12 +33,6 @@ ADD_CUSTOM_TARGET(models-cpp
                   )
 
 #
-# Target used to ensure that ddbdir directory is created
-#
-ADD_CUSTOM_TARGET(CREATE_DDBDIR
-                  COMMAND ${CMAKE_COMMAND} -E make_directory ${ddbdir}
-                 )
-#
 # Target used to install Modelica model files in ddbdir
 # (.mo or .xml only)
 #
