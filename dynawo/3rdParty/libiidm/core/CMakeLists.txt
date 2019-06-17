@@ -102,6 +102,7 @@ set_target_properties(iidm
   PROPERTIES
     VERSION ${IIDM_VERSION}
     SOVERSION ${IIDM_SOVERSION}
+    WINDOWS_EXPORT_ALL_SYMBOLS TRUE
 )
 
 install(TARGETS iidm EXPORT libiidm-core-config

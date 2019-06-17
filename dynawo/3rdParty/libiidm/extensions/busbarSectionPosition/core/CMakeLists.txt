@@ -42,6 +42,7 @@ set_target_properties(iidm-ext-busbarsectionposition
   PROPERTIES
     VERSION ${IIDM_VERSION_STRING}
     SOVERSION ${IIDM_VERSION_MAJOR}
+    WINDOWS_EXPORT_ALL_SYMBOLS TRUE
 )
 
 install(TARGETS iidm-ext-busbarsectionposition EXPORT iidm-ext-busbarsectionposition-config
