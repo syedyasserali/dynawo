@@ -41,8 +41,6 @@ else()
   set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "build type, one of (Release, Debug, RelWithDebInfo)")
 endif()
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
-
 set(BOOST_ROOT ${BOOST_ROOT} CACHE STRING "Boost library install directory")
 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} CACHE STRING "pathes where cmake searches for package-config.cmake files")
@@ -67,6 +65,11 @@ set(LibIIDM_INSTALL_LIBRARIES lib)
 set(LibIIDM_INSTALL_BINARIES bin)
 set(LibIIDM_INSTALL_INCLUDE include)
 
+add_definitions(-DBOOST_NO_LONG_LONG)
+
+if(NOT MSVC)
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+
 # see http://stackoverflow.com/a/25836953
 if(CXX11_ENABLED)
   # Test if a C++11 flag is supported
@@ -89,10 +92,10 @@ if(CXX11_ENABLED)
 else()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++98")
 endif()
-
+endif()
 
 # Add specific options for gcc
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+if('${CMAKE_CXX_COMPILER_ID}' STREQUAL 'GNU')
   if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.8)
     message(STATUS "Use of GCC version greater than 4.8: activate specific options")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs")
@@ -123,8 +126,6 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   # quality
     # '-Wzero-as-null-pointer-constant', #disabled since problems in boost
     # '-Wold-style-cast', #disabled since problems in boost
-
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_NO_LONG_LONG")
 
   # also add a few extra check
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wvla -Wredundant-decls")
