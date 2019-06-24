@@ -20,7 +20,6 @@
 #include <stdio.h>
 #include <sys/types.h>
 #ifndef _MSC_VER
-#include <wait.h>   // waitpid
 #include <sys/wait.h>   // waitpid
 #include <unistd.h>
 #endif
@@ -48,6 +47,11 @@ prettyPath(const std::string & path) {
 }
 
 void parentProcess(int fd[2], std::stringstream & ss) {
+#ifdef _MSC_UNIMPLEMENTED
+  #define STRING2(x)  #x
+  #define STRING(x)   STRING2(x)
+  #pragma message(__FILE__ "(" STRING(__LINE__) "): warning RTE: " __FUNCTION__ "() is not yet implemented for MSVC compiler, this function does nothing !")
+#else
   char buferr[256];
   struct timeval tv;
   char buf[BUFSIZ];
@@ -83,17 +87,18 @@ void parentProcess(int fd[2], std::stringstream & ss) {
   }
   if (strbuf.size() != 0)
     ss << strbuf << std::endl;
+#endif
 }
 void
 executeCommand(const std::string & command, std::stringstream & ss) {
   ss << "Executing command : " << command << std::endl;
-  char buferr[256];
 
 #ifdef _MSC_UNIMPLEMENTED
   #define STRING2(x)  #x
   #define STRING(x)   STRING2(x)
   #pragma message(__FILE__ "(" STRING(__LINE__) "): warning RTE: " __FUNCTION__ "() is not yet implemented for MSVC compiler, this function does nothing !")
 #else
+  char buferr[256];
   std::string command1 = command + " 2>&1";
 
   // Creation of a pipe between the exit and the entry
