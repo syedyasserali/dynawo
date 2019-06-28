@@ -57,10 +57,6 @@ TARGET_LINK_LIBRARIES(dynawo_DataInterface
     iidm
     )
 
-IF(LIBRARY_TYPE STREQUAL "SHARED")
-  TARGET_LINK_LIBRARIES(dynawo_DataInterface dynawo_Util)
-ENDIF()
-
 
 SET_TARGET_PROPERTIES(dynawo_DataInterface PROPERTIES VERSION ${DATA_INTERFACE_VERSION_STRING}
                                                     SOVERSION ${DATA_INTERFACE_VERSION_MAJOR})

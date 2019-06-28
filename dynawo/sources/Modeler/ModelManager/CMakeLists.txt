@@ -21,43 +21,32 @@ SET(MODEL_MANAGER_SOURCES
     )
 
 SET(MODEL_MANAGER_INCLUDE_HEADERS
-   DYNModelManager.h
-   DYNModelManagerCommon.h
-   DYNModelManagerOwnTypes.h
-   DYNModelModelica.h
-   DYNModelModelicaInit.h
-   DYNModelModelicaDyn.h
-   DYNModelManagerOwnFunctions.h
-   )
-
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR}
-                    ${SUNDIALS_INCLUDE_DIR}
-                    ${KLU_INCLUDE_DIR}
-                    ${OMC_INCLUDE_DIR}
-                    )
-
-INCLUDE_DIRECTORIES(../../API/PAR
-                    ../../Common
-                    ../Common
-                    ../../Solvers/Common
-                    ../../Solvers/SolverSubModel
-                    ModelicaExternalC
-                    )
+    DYNModelManager.h
+    DYNModelManagerCommon.h
+    DYNModelManagerOwnTypes.h
+    DYNModelModelica.h
+    DYNModelModelicaInit.h
+    DYNModelModelicaDyn.h
+    DYNModelManagerOwnFunctions.h
+    )
 
 ADD_LIBRARY(dynawo_ModelManager ${LIBRARY_TYPE} ${MODEL_MANAGER_SOURCES})
 
+TARGET_INCLUDE_DIRECTORIES(dynawo_ModelManager SYSTEM PUBLIC ${OMC_INCLUDE_DIR})
+TARGET_INCLUDE_DIRECTORIES(dynawo_ModelManager INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+
 TARGET_LINK_LIBRARIES(dynawo_ModelManager
-                      dynawo_API_PAR
-                      dynawo_Common
-                      dynawo_ModelerCommon
-                      dynawo_SolverSubModel
-                      ${Boost_SERIALIZATION_LIBRARY}
-                      )
+    dynawo_ModelerCommon
+    dynawo_SolverSubModel
+    Modelica_externalC
+    )
+
 SET_TARGET_PROPERTIES(dynawo_ModelManager PROPERTIES VERSION ${MODEL_MANAGER_VERSION_STRING}
-                                              SOVERSION ${MODEL_MANAGER_VERSION_MAJOR})
+                                                   SOVERSION ${MODEL_MANAGER_VERSION_MAJOR})
+
 IF(USE_ADEPT)
-  INCLUDE_DIRECTORIES(${ADEPT_INCLUDE_DIR})
-  TARGET_LINK_LIBRARIES(dynawo_ModelManager ${ADEPT_LIBRARY})
+    TARGET_INCLUDE_DIRECTORIES(dynawo_ModelManager PUBLIC ${ADEPT_INCLUDE_DIR})
+    TARGET_LINK_LIBRARIES(dynawo_ModelManager ${ADEPT_LIBRARY})
 ENDIF(USE_ADEPT)
 
 INSTALL(TARGETS dynawo_ModelManager DESTINATION ${libdir})
