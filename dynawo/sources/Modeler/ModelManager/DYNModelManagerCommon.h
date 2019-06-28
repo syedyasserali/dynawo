@@ -34,6 +34,10 @@
 #define REAL_ARRAY_H_   ///< to avoid definition of real_array functions/types
 #define INTEGER_ARRAY_H_   ///< to avoid definition of integer_array functions/types
 
+#ifdef _MSC_VER
+#define OMC_NO_THREADS   ///< to avoid inclusion of pthread.h
+#endif
+
 #include "DYNError.h"
 #include "DYNMessage.hpp"
 #include "DYNMessageTimeline.h"
