@@ -21,75 +21,39 @@ SET(SIM_INCLUDE_HEADERS
     DYNSimulationLauncher.h
     )
 
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR}
-                    ${SUNDIALS_INCLUDE_DIR}
-                    ${KLU_INCLUDE_DIR}
-                    ${libZIP_INCLUDE_DIR}
-                    ${LibXML_INCLUDE_DIR}
-                    ${LibIIDM_CORE_INCLUDE_DIR}
-                    ${LibIIDM_EXT_ACTIVESEASON_INCLUDE_DIR}
-                    ${LibIIDM_EXT_CURRENTLIMITSPERSEASON_INCLUDE_DIR}
-                    ${LibIIDM_EXT_STANDBYAUTOMATON_INCLUDE_DIR}
-                    ${LibIIDM_EXT_GENERATORACTIVEPOWERCONTROL_INCLUDE_DIR}
-                    ${LibIIDM_EXT_BUSBARSECTIONPOSITION_INCLUDE_DIR}
-                    ${LibIIDM_EXT_CONNECTABLEPOSITION_INCLUDE_DIR}
-                    ${LibIIDM_EXT_HVDCANGLEDROOPACTIVEPOWERCONTROL_INCLUDE_DIR}
-                    ${LibIIDM_EXT_HVDCOPERATORACTIVEPOWERRANGE_INCLUDE_DIR}
-                    ${LibIIDM_EXT_GENERATORENTSOECATEGORY_INCLUDE_DIR}
-                    ${LibIIDM_EXT_GENERATORSTARTUP_INCLUDE_DIR}
-                    ${LibIIDM_EXT_LOADDETAIL_INCLUDE_DIR}
-                    )
-
-INCLUDE_DIRECTORIES(../API/CRV
-                    ../API/TL
-                    ../API/FS
-                    ../API/CSTR
-                    ../API/JOB
-                    ../API/PAR
-                    ../API/DYD
-                    ../API/EXTVAR
-                    ../Common
-                    ../Modeler/Common
-                    ../Modeler/DataInterface
-                    ../Solvers/Common
-                    ../
-                    )
-
 ADD_LIBRARY(dynawo_Simulation ${LIBRARY_TYPE} ${SIM_SOURCES})
 
+TARGET_INCLUDE_DIRECTORIES(dynawo_Simulation SYSTEM PUBLIC ${libZIP_INCLUDE_DIR})
+TARGET_INCLUDE_DIRECTORIES(dynawo_Simulation
+    INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+    PUBLIC
+        ../
+    )
+
 TARGET_LINK_LIBRARIES(dynawo_Simulation
-                      dynawo_SimulationCommon
-                      dynawo_API_TL
-                      dynawo_API_CRV
-                      dynawo_API_FS
-                      dynawo_API_CSTR
-                      dynawo_API_PAR
-                      dynawo_API_JOB
-                      dynawo_SolverCommon
-                      dynawo_Common
-                      dynawo_ModelerCommon
-                      dynawo_DataInterface
-                      ${libZIP_LIBRARY}
-                      ${LibArchive_LIBRARY}
-                      ${ZLIB_LIBRARY}
-                      ${Boost_SERIALIZATION_LIBRARY}
-                      XMLSAXFormatter${LibXML_LINK_SUFFIX}
-                      XMLSAXParser${LibXML_LINK_SUFFIX}
-                      iidm-xml
-                      iidm-ext-activeseason-xml
-                      iidm-ext-currentlimitsperseason-xml
-                      iidm-ext-standbyautomaton-xml
-                      iidm-ext-generatoractivepowercontrol-xml
-                      iidm-ext-busbarsectionposition-xml
-                      iidm-ext-connectableposition-xml
-                      iidm-ext-hvdcangledroopactivepowercontrol-xml
-                      iidm-ext-hvdcoperatoractivepowerrange-xml
-                      iidm-ext-generatorentsoecategory-xml
-                      iidm-ext-generatorstartup-xml
-                      iidm-ext-loaddetail-xml
-                      )
+    dynawo_SimulationCommon
+    dynawo_API_CSTR
+    dynawo_API_JOB
+    dynawo_API_TL
+    dynawo_SolverCommon
+    dynawo_DataInterface
+    ${libZIP_LIBRARY}
+    iidm-ext-activeseason-xml
+    iidm-ext-busbarsectionposition-xml
+    iidm-ext-connectableposition-xml
+    iidm-ext-currentlimitsperseason-xml
+    iidm-ext-generatoractivepowercontrol-xml
+    iidm-ext-generatorentsoecategory-xml
+    iidm-ext-generatorstartup-xml
+    iidm-ext-hvdcangledroopactivepowercontrol-xml
+    iidm-ext-hvdcoperatoractivepowerrange-xml
+    iidm-ext-loaddetail-xml
+    iidm-ext-standbyautomaton-xml
+    )
+
 SET_TARGET_PROPERTIES(dynawo_Simulation PROPERTIES VERSION ${SIM_VERSION_STRING}
-                                     SOVERSION ${SIM_VERSION_MAJOR})
+                                                 SOVERSION ${SIM_VERSION_MAJOR})
 
 INSTALL(TARGETS dynawo_Simulation DESTINATION ${libdir})
 INSTALL(FILES ${SIM_INCLUDE_HEADERS} DESTINATION ${includedir})
@@ -110,10 +74,10 @@ SET(SIMCOMMON_INCLUDE_HEADERS
 
 ADD_LIBRARY(dynawo_SimulationCommon ${LIBRARY_TYPE} ${SIMCOMMON_SOURCES})
 
-#TARGET_LINK_LIBRARIES(dynawo_SimulationCommon)
+TARGET_INCLUDE_DIRECTORIES(dynawo_SimulationCommon INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
 SET_TARGET_PROPERTIES(dynawo_SimulationCommon PROPERTIES VERSION ${SIMCOMMON_VERSION_STRING}
-                                     SOVERSION ${SIMCOMMON_VERSION_MAJOR})
+                                                       SOVERSION ${SIMCOMMON_VERSION_MAJOR})
 
 INSTALL(TARGETS dynawo_SimulationCommon DESTINATION ${libdir})
 INSTALL(FILES ${SIMCOMMON_INCLUDE_HEADERS} DESTINATION ${includedir})

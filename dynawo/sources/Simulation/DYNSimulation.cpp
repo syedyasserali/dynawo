@@ -24,6 +24,9 @@
 #include <cstdlib>
 #include <sstream>
 #include <fstream>
+#ifdef _MSC_VER
+  #include <process.h>
+#endif
 
 
 #include <boost/archive/binary_iarchive.hpp>
@@ -186,7 +189,11 @@ lastTimeSimulated_(-1),
 nbLastTimeSimulated_(0) {
   SignalHandler::setSignalHandlers();
 
+#ifdef _MSC_VER
+  pid_ = _getpid();
+#else
   pid_ = getpid();
+#endif
   stringstream pid_string;
   pid_string << pid_;
   timeline_ = TimelineFactory::newInstance("Simulation_" + pid_string.str());

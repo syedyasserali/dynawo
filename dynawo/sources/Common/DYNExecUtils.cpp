@@ -35,7 +35,7 @@ using std::stringstream;
 
 string
 prettyPath(const std::string & path) {
-#if _MSC_VER
+#ifdef _MSC_VER
   char *real_path = _fullpath(NULL, path.c_str(), _MAX_PATH);
 #else
   // only works if the file or the path exists !!!
