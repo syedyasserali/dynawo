@@ -19,6 +19,7 @@
 #define MODELER_COMMON_DYNCOMPILER_H_
 
 #include <map>
+#include <set>
 #include <vector>
 #include <string>
 #include <sstream>

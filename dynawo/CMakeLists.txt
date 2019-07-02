@@ -274,32 +274,32 @@ ADD_CUSTOM_TARGET(CREATE_DDBDIR
     COMMAND ${CMAKE_COMMAND} -E make_directory ${ddbdir}
     )
 
-if (APPLE)
-  set(CMAKE_MACOSX_RPATH True)
+IF(APPLE)
+    SET(CMAKE_MACOSX_RPATH True)
 
-  # use, i.e. don't skip the full RPATH for the build tree
-  set(CMAKE_SKIP_BUILD_RPATH  False)
+    # use, i.e. don't skip the full RPATH for the build tree
+    SET(CMAKE_SKIP_BUILD_RPATH False)
 
-  # when building, don't use the install RPATH already
-  # (but later on when installing)
-  set(CMAKE_BUILD_WITH_INSTALL_RPATH False)
+    # when building, don't use the install RPATH already
+    # (but later on when installing)
+    SET(CMAKE_BUILD_WITH_INSTALL_RPATH False)
 
-  set(CMAKE_INSTALL_RPATH "${INSTALL_PREFIX}/lib")
+    SET(CMAKE_INSTALL_RPATH "${INSTALL_PREFIX}/lib")
 
-  # add the automatically determined parts of the RPATH
-  # which point to directories outside the build tree to the install RPATH
-  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH True)
-endif()
+    # add the automatically determined parts of the RPATH
+    # which point to directories outside the build tree to the install RPATH
+    SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH True)
+ENDIF()
 
 INCLUDE(../cpplint/cpplint.cmake)
 
 ADD_SUBDIRECTORY(sources)
 ADD_SUBDIRECTORY(sources/Common)
+ADD_SUBDIRECTORY(sources/API)
 ADD_SUBDIRECTORY(sources/Solvers)
 ADD_SUBDIRECTORY(sources/Modeler)
-#ADD_SUBDIRECTORY(sources/Simulation)
-#ADD_SUBDIRECTORY(sources/Launcher)
-#ADD_SUBDIRECTORY(sources/ModelicaCompiler)
+ADD_SUBDIRECTORY(sources/Simulation)
+ADD_SUBDIRECTORY(sources/Launcher)
+ADD_SUBDIRECTORY(sources/ModelicaCompiler)
 #ADD_SUBDIRECTORY(sources/Models)
-ADD_SUBDIRECTORY(sources/API)
 #ADD_SUBDIRECTORY(doxygen)

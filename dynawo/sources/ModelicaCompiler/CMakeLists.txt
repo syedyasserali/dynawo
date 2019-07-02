@@ -13,36 +13,28 @@ SET(COMPILER_MODELICA_OMC_SOURCES
     DYNCompileModelicaModel.cpp
     )
 
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR}
-                   )
-
-INCLUDE_DIRECTORIES(../Common
-                   )
-
 ADD_EXECUTABLE(compileModelicaModel ${COMPILER_MODELICA_OMC_SOURCES})
 
 TARGET_LINK_LIBRARIES(compileModelicaModel
-                      dynawo_ModelerCommon
-                      dynawo_Common
-                      dynawo_SolverCommon
-                      dynawo_SolverSubModel
-                      ${Boost_PROGRAM_OPTIONS_LIBRARY}
-                      dl
-                      pthread
-                      ${Boost_THREAD_LIBRARY}
-                      "-rdynamic"
-                    )
+    dynawo_Common
+    ${CMAKE_DL_LIBS}
+    #dynawo_ModelerCommon
+    #dynawo_SolverCommon
+    #dynawo_SolverSubModel
+    #pthread
+    #"-rdynamic"
+    )
 
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   TARGET_LINK_LIBRARIES(compileModelicaModel "-lrt")
 ENDIF()
 
-IF (APPLE)
-  TARGET_LINK_LIBRARIES(compileModelicaModel "-force_load" dynawo_Util)
-  # Additional step to make shared library work on macOS; see https://gist.github.com/robertmaynard/5750737
-  SET_TARGET_PROPERTIES(compileModelicaModel PROPERTIES INSTALL_RPATH "@loader_path/../lib")
-ELSE()
-  TARGET_LINK_LIBRARIES(compileModelicaModel "-Wl,--whole-archive" dynawo_Util "-Wl,--no-whole-archive")
+IF(APPLE)
+    TARGET_LINK_LIBRARIES(compileModelicaModel "-force_load" dynawo_Util)
+    # Additional step to make shared library work on macOS; see https://gist.github.com/robertmaynard/5750737
+    SET_TARGET_PROPERTIES(compileModelicaModel PROPERTIES INSTALL_RPATH "@loader_path/../lib")
+ELSEIF(NOT MSVC)
+    TARGET_LINK_LIBRARIES(compileModelicaModel "-Wl,--whole-archive" dynawo_Util "-Wl,--no-whole-archive")
 ENDIF()
 
 INSTALL(TARGETS compileModelicaModel DESTINATION ${sbindir})
