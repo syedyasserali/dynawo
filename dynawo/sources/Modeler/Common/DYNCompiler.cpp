@@ -316,10 +316,10 @@ Compiler::compileModelicaModelDescription(const shared_ptr<ModelDescription>& mo
   Trace::info("COMPILE") << "|" << std::setw(50 + l) << id << std::setw(50 - l - 1) << "|" << Trace::endline;
   Trace::info("COMPILE") << "|                                                                                                  |" << Trace::endline;
   Trace::info("COMPILE") << "====================================================================================================" << Trace::endline;
-  string installDir = prettyPath(getEnvVar("DYNAWO_INSTALL_DIR"));
+  string installDir = getEnvVar("DYNAWO_INSTALL_DIR");
 
   // remove old files
-  string cleanCommand = installDir + "/sbin/cleanCompileModelicaModel --model=" + thisCompiledId + " --directory=" + compileDirPath_;
+  string cleanCommand = prettyPath(installDir + "/sbin") + "/cleanCompileModelicaModel --model=" + thisCompiledId + " --directory=" + compileDirPath_;
   if (rmModels_)
     cleanCommand += " --remove-model-files";
 #ifdef _DEBUG_
@@ -338,7 +338,8 @@ Compiler::compileModelicaModelDescription(const shared_ptr<ModelDescription>& mo
   throwIfAllModelicaFilesAreNotAvailable(unitDynamicModels);
 
   // Compilation and post-treatment on concatenated files
-  string compileCommand = installDir + "/sbin/compileModelicaModel --model " + thisCompiledId + " --output-dir " + compileDirPath_ + " --lib " + libName;
+  string compileCommand = prettyPath(installDir + "/sbin")
+    + "/compileModelicaModel --model " + thisCompiledId + " --output-dir " + compileDirPath_ + " --lib " + libName;
 
   if (moFilesCompilation_.size() > 0) {
     string moFilesList = "";

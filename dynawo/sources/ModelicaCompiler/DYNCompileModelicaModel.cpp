@@ -398,7 +398,7 @@ generateModelFile(const string& modelName, const string& outputDir, bool& withIn
 void
 compileLib(const string& modelName, const string& libName, const string& outputDir) {
   string outputDir1 = prettyPath(outputDir);
-  string scriptsDir1 = getEnvVar("DYNAWO_SCRIPTS_DIR");
+  string scriptsDir1 = prettyPath(getEnvVar("DYNAWO_SCRIPTS_DIR"));
 
   string compileLibCommand = scriptsDir1 + "/compileCppModelicaModelInDynamicLib --model-name=" + modelName
     + " --directory=" + outputDir1 + " --lib-name=" + libName;
@@ -416,7 +416,7 @@ compileLib(const string& modelName, const string& libName, const string& outputD
 void
 removeTemporaryFiles(const string& modelName, const string& outputDir, bool rmModels, const string& packageName) {
   string outputDir1 = prettyPath(outputDir);
-  string scriptsDir1 = getEnvVar("DYNAWO_SCRIPTS_DIR");
+  string scriptsDir1 = prettyPath(getEnvVar("DYNAWO_SCRIPTS_DIR"));
   string commandRemove = scriptsDir1 + "/cleanCompileModelicaModel --model=" + modelName + " --directory=" + outputDir1;
   if (rmModels)
     commandRemove += " --remove-model-files";
