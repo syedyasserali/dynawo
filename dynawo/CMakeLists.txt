@@ -193,7 +193,7 @@ ELSE()
 ENDIF()
 
 IF(CMAKE_BUILD_TYPE STREQUAL "Tests" OR  CMAKE_BUILD_TYPE STREQUAL "TestCoverage")
-    FIND_PACKAGE(Boost 1.59 REQUIRED
+    FIND_PACKAGE(Boost 1.64 REQUIRED
         COMPONENTS
             filesystem
             program_options
@@ -203,7 +203,7 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Tests" OR  CMAKE_BUILD_TYPE STREQUAL "TestCoverage
             iostreams
         )
 ELSE()
-    FIND_PACKAGE(Boost 1.59 REQUIRED
+    FIND_PACKAGE(Boost 1.64 REQUIRED
         COMPONENTS
             filesystem
             program_options
