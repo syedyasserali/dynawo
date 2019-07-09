@@ -266,7 +266,7 @@ ModelGenerator::getY0() {
 
 NetworkComponent::StateChange_t
 ModelGenerator::evalState(const double& /*time*/) {
-  State currState = static_cast<State>(z_[0]);
+  State currState = static_cast<State>(static_cast<int>(z_[0]));
   if (currState != getConnected()) {
     Trace::debug() << DYNLog(GeneratorStateChange, id_, getConnected(), z_[0]) << Trace::endline;
     if (currState == OPEN) {

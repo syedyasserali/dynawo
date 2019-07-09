@@ -431,7 +431,7 @@ ModelHvdcLink::evalDerivatives() {
 
 NetworkComponent::StateChange_t
 ModelHvdcLink::evalState(const double& /*time*/) {
-  State currState1 = static_cast<State>(z_[0]);
+  State currState1 = static_cast<State>(static_cast<int>(z_[0]));
   if (currState1 != getConnected1()) {
     Trace::debug() << DYNLog(Converter1StateChange, id_, getConnected1(), z_[0]) << Trace::endline;
     if (currState1 == OPEN) {
@@ -446,7 +446,7 @@ ModelHvdcLink::evalState(const double& /*time*/) {
     return NetworkComponent::STATE_CHANGE;
   }
 
-  State currState2 = static_cast<State>(z_[1]);
+  State currState2 = static_cast<State>(static_cast<int>(z_[1]));
   if (currState2 != getConnected2()) {
     Trace::debug() << DYNLog(Converter2StateChange, id_, getConnected2(), z_[1]) << Trace::endline;
     if (currState2 == OPEN) {

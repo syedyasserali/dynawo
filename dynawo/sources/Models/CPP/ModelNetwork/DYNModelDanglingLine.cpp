@@ -821,9 +821,9 @@ ModelDanglingLine::getY0() {
 NetworkComponent::StateChange_t
 ModelDanglingLine::evalState(const double& /*time*/) {
   StateChange_t state = NetworkComponent::NO_CHANGE;
-  if (static_cast<State>(z_[0]) != connectionState_) {
+  if (static_cast<State>(static_cast<int>(z_[0])) != connectionState_) {
     Trace::debug() << DYNLog(DanglingLineStateChange, id_, connectionState_, z_[0]) << Trace::endline;
-    connectionState_ = static_cast<State>(z_[0]);
+    connectionState_ = static_cast<State>(static_cast<int>(z_[0]));
     if (connectionState_ == CLOSED) {
       network_->addEvent(id_, DYNTimeline(DanglingLineConnected));
       modelBus_->getVoltageLevel()->connectNode(modelBus_->getBusIndex());

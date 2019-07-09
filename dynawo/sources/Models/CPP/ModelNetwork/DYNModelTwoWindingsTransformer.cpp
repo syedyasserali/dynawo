@@ -1551,7 +1551,7 @@ ModelTwoWindingsTransformer::getY0() {
 NetworkComponent::StateChange_t
 ModelTwoWindingsTransformer::evalState(const double& /*time*/) {
   NetworkComponent::StateChange_t state = NetworkComponent::NO_CHANGE;
-  State currState = static_cast<State>(z_[0]);
+  State currState = static_cast<State>(static_cast<int>(z_[0]));
 
   if (currState!= getConnectionState()) {
     if (currState == CLOSED && knownBus_ != BUS1_BUS2) {

@@ -799,7 +799,7 @@ ModelLoad::defineNonGenericParameters(vector<ParameterModeler>& parameters) {
 
 NetworkComponent::StateChange_t
 ModelLoad::evalState(const double& /*time*/) {
-  State currState = static_cast<State>(z_[0]);
+  State currState = static_cast<State>(static_cast<int>(z_[0]));
   if (currState != getConnected()) {
     Trace::debug() << DYNLog(LoadStateChange, id_, getConnected(), z_[0]) << Trace::endline;
 

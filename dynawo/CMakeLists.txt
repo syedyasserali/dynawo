@@ -274,6 +274,9 @@ ADD_CUSTOM_TARGET(CREATE_DDBDIR
     COMMAND ${CMAKE_COMMAND} -E make_directory ${ddbdir}
     )
 
+SET(envlibpath "PATH=${libdir};${LibIIDM_BIN_DIR};${LibXML_SAX_FORMATTER_BIN_DIR};${XERCESC_HOME}/bin;${SUNDIALS_HOME}/lib;${SUITESPARSE_HOME}/bin;${Boost_LIBRARY_DIR_DEBUG};${Boost_LIBRARY_DIR_RELEASE};${dlfcn-win32_INCLUDE_DIRS}/../bin;$ENV{PATH}")
+
+
 IF(APPLE)
     SET(CMAKE_MACOSX_RPATH True)
 
@@ -301,5 +304,5 @@ ADD_SUBDIRECTORY(sources/Modeler)
 ADD_SUBDIRECTORY(sources/Simulation)
 ADD_SUBDIRECTORY(sources/Launcher)
 ADD_SUBDIRECTORY(sources/ModelicaCompiler)
-#ADD_SUBDIRECTORY(sources/Models)
+ADD_SUBDIRECTORY(sources/Models)
 #ADD_SUBDIRECTORY(doxygen)

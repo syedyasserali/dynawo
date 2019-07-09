@@ -12,8 +12,8 @@
 #         ModelNetwork          #
 #################################
 SET(MODEL_NAME
-  DYNModelNetwork
-)
+    DYNModelNetwork
+    )
 
 SET(MODEL_SOURCES
     DYNDerivative.cpp
@@ -38,31 +38,14 @@ SET(MODEL_SOURCES
     DYNModelVoltageLevel.cpp
     )
 
-INCLUDE_DIRECTORIES(SYSTEM ${Boost_INCLUDE_DIR}
-                    ${SUNDIALS_INCLUDE_DIR}
-                    ${KLU_INCLUDE_DIR}
-                    )
-
-INCLUDE_DIRECTORIES(../../../API/PAR
-                    ../../../Solvers/Common
-                    ../../../Common
-                    ../../../Modeler/DataInterface
-                    ../../../Solvers/SolverSubModel
-                    ../../../Modeler/Common
-                    ../Common
-                  )
-
 SET(MODEL_LINKED_LIBRARIES
-    dynawo_CPPModelsCommon
-    dynawo_API_PAR
-    dynawo_Common
-    dynawo_ModelerCommon
     dynawo_DataInterface
-    dynawo_SolverCommon
     dynawo_SolverSubModel
     )
 
-COMPILE_CPP_MODEL(${MODEL_NAME}
-                  "${MODEL_SOURCES}"
-                  "${MODEL_LINKED_LIBRARIES}"
-                 )
+COMPILE_CPP_MODEL(${MODEL_NAME} "${MODEL_SOURCES}")
+
+TARGET_LINK_LIBRARIES(${MODEL_NAME}
+    dynawo_DataInterface
+    dynawo_SolverSubModel
+    )

@@ -819,8 +819,8 @@ ModelBus::evalJtPrim(SparseMatrix& jt, const int& /*rowOffset*/) {
 NetworkComponent::StateChange_t
 ModelBus::evalState(const double& /*time*/) {
   StateChange_t state = NetworkComponent::NO_CHANGE;
-  if (static_cast<State>(z_[2]) != connectionState_) {
-    if (static_cast<State>(z_[2]) == OPEN) {
+  if (static_cast<State>(static_cast<int>(z_[2])) != connectionState_) {
+    if (static_cast<State>(static_cast<int>(z_[2])) == OPEN) {
       switchOff();
       network_->addEvent(id_, DYNTimeline(NodeOff));
       connectionState_ = OPEN;

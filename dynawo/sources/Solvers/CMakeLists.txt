@@ -29,9 +29,6 @@ ADD_CUSTOM_TARGET(SOLVERS_FILES_INSTALL
 # file into ddbdir. Automatically adds the dependencies
 # to the main targets.
 #
-SET(libpath "PATH=${libdir};${LibXML_SAX_FORMATTER_BIN_DIR};${SUNDIALS_HOME}/lib;${SUITESPARSE_HOME}/bin;${Boost_LIBRARY_DIR_DEBUG};${dlfcn-win32_INCLUDE_DIRS}/../bin;$ENV{PATH}")
-message("${libpath}")
-
 MACRO(DESC_SOLVER SOLVER_NAME)
     #
     # Generates .desc.xml file for the solver
@@ -41,12 +38,12 @@ MACRO(DESC_SOLVER SOLVER_NAME)
         DEPENDS ${SOLVER_NAME} dumpSolver
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMAND
-            ${CMAKE_COMMAND} -E env "${libpath}" $<TARGET_FILE:dumpSolver> -m $<TARGET_FILE:${SOLVER_NAME}> -o ${CMAKE_SHARED_LIBRARY_PREFIX}${SOLVER_NAME}.desc.xml
+            ${CMAKE_COMMAND} -E env "${envlibpath}" $<TARGET_FILE:dumpSolver> -m $<TARGET_FILE:${SOLVER_NAME}> -o ${CMAKE_SHARED_LIBRARY_PREFIX}${SOLVER_NAME}.desc.xml
         COMMENT "Generating ${SOLVER_NAME} description file"
         )
 
     #
-    # Install built library and generated .desc.xml file into bdddir
+    # Install built library and generated .desc.xml file into ddbdir
     #
     ADD_CUSTOM_TARGET(${SOLVER_NAME}.desc
         DEPENDS

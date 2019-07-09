@@ -1287,7 +1287,7 @@ NetworkComponent::StateChange_t
 ModelLine::evalState(const double& /*time*/) {
   StateChange_t state = NetworkComponent::NO_CHANGE;
 
-  State currState = static_cast<State>(z_[0]);
+  State currState = static_cast<State>(static_cast<int>(z_[0]));
   if (currState != getConnectionState()) {
     if (currState == CLOSED && knownBus_ != BUS1_BUS2) {
       Trace::error() << DYNLog(UnableToCloseLine, id_) << Trace::endline;
