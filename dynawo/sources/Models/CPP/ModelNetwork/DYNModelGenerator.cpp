@@ -251,7 +251,7 @@ ModelGenerator::defineElements(std::vector<Element> &elements, std::map<std::str
 
 void
 ModelGenerator::evalZ(const double& /*t*/) {
-  State currState = static_cast<State>(z_[0]);
+  State currState = static_cast<State>(static_cast<int>(z_[0]));
   if (currState != getConnected()) {
     Trace::debug() << DYNLog(GeneratorStateChange, id_, getConnected(), z_[0]) << Trace::endline;
     if (currState == OPEN) {

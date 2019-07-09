@@ -14,8 +14,8 @@
 #
 ADD_CUSTOM_TARGET(models
                   DEPENDS
-                    models-mo
-                    models-cpp
+                      models-mo
+                      models-cpp
                   COMMENT "Building models for Dynawo"
                  )
 
@@ -43,10 +43,11 @@ ADD_CUSTOM_TARGET(MODEL_FILES_INSTALL
 #
 # Flatten external variable files (in order to process includes)
 #
-ADD_CUSTOM_TARGET (EXTERNAL_VARIABLES_FLATTENING
-                   DEPENDS
-                       MODEL_FILES_INSTALL
-                   COMMENT "Flattening external variables files (processing includes)")
+ADD_CUSTOM_TARGET(EXTERNAL_VARIABLES_FLATTENING
+                  DEPENDS
+                      MODEL_FILES_INSTALL
+                  COMMENT "Flattening external variables files (processing includes)"
+                 )
 
 
 #
@@ -209,16 +210,16 @@ ENDMACRO(COMPILE_PREASSEMBLED_MODEL)
 MACRO(COMPILE_CPP_MODEL
           CPP_MODEL
           CPP_SOURCES
-          CPP_LINKED_LIBRARIES
      )
 
     ADD_CUSTOM_TARGET(${CPP_MODEL}_HPP
-                       COMMAND
-                         ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_SOURCE_DIR}/${CPP_MODEL}.hpp \;
-                         python ${CMAKE_CURRENT_SOURCE_DIR}/../../checkSum_ModelsCPP.py -m ${CMAKE_CURRENT_SOURCE_DIR}/${CPP_MODEL} 2>&1 ||
-                         (echo "*** [${CPP_MODEL}] Error : for more information see previous log" && exit -1)
-                       COMMENT "Creating checkSum for ${CPP_MODEL}"
-                      )
+                      COMMAND
+                          ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_SOURCE_DIR}/${CPP_MODEL}.hpp
+                      COMMAND
+                          ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../checkSum_ModelsCPP.py -m ${CMAKE_CURRENT_SOURCE_DIR}/${CPP_MODEL} 2>&1 ||
+                          (echo "*** [${CPP_MODEL}] Error : for more information see previous log" && exit -1)
+                      COMMENT "Creating checkSum for ${CPP_MODEL}"
+                     )
 
     ADD_LIBRARY(${CPP_MODEL} SHARED EXCLUDE_FROM_ALL ${CPP_SOURCES})
 
@@ -226,39 +227,36 @@ MACRO(COMPILE_CPP_MODEL
 
     ADD_DEPENDENCIES(${CPP_MODEL} ${CPP_MODEL}_HPP)
 
-    TARGET_LINK_LIBRARIES(${CPP_MODEL}
-                          ${CPP_LINKED_LIBRARIES}
-                          ${Boost_ATOMIC_LIBRARY}
-                          ${Boost_DATE_TIME_LIBRARY}
-                          ${Boost_REGEX_LIBRARY}
-                          ${Boost_CHRONO_LIBRARY}
-                         )
-    IF (APPLE)
-      IF(LIBRARY_TYPE STREQUAL "STATIC")
-        TARGET_LINK_LIBRARIES(${CPP_MODEL} "-flat_namespace -undefined warning")
-      ENDIF()
+    TARGET_LINK_LIBRARIES(${CPP_MODEL} dynawo_CPPModelsCommon)
+    IF(APPLE)
+        IF(LIBRARY_TYPE STREQUAL "STATIC")
+            TARGET_LINK_LIBRARIES(${CPP_MODEL} "-flat_namespace -undefined warning")
+        ENDIF()
     ENDIF()
 
     IF(LIBRARY_TYPE STREQUAL "SHARED")
-      TARGET_LINK_LIBRARIES(${CPP_MODEL} dynawo_Util)
+        TARGET_LINK_LIBRARIES(${CPP_MODEL} dynawo_Util)
     ENDIF()
 
-    ADD_CUSTOM_COMMAND(OUTPUT ${CPP_MODEL}.desc.xml
-                       DEPENDS ${CPP_MODEL} dumpModel
-                       COMMAND
-                           ${bindir}/launcher --dump-model -m $<TARGET_FILE_DIR:${CPP_MODEL}>/${CPP_MODEL}${CMAKE_SHARED_LIBRARY_SUFFIX} -o ${CMAKE_CURRENT_BINARY_DIR}/${CPP_MODEL}.desc.xml \;
-                       COMMENT "Building ${CPP_MODEL} description file"
-                      )
+    ADD_CUSTOM_COMMAND(
+        OUTPUT ${CPP_MODEL}.desc.xml
+        DEPENDS ${CPP_MODEL} dumpModel
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMAND
+            ${CMAKE_COMMAND} -E env "${envlibpath}" $<TARGET_FILE:dumpModel> -m $<TARGET_FILE:${CPP_MODEL}> -o ${CPP_MODEL}.desc.xml
+        COMMENT "Building ${CPP_MODEL} description file"
+        )
 
     ADD_CUSTOM_TARGET(${CPP_MODEL}_INSTALL
-                      DEPENDS
-                          ${CPP_MODEL}
-                          ${CPP_MODEL}.desc.xml
-                          CREATE_DDBDIR
-                      COMMAND
-                          ${CMAKE_COMMAND} -E copy $<TARGET_FILE_DIR:${CPP_MODEL}>/${CPP_MODEL}${CMAKE_SHARED_LIBRARY_SUFFIX} ${ddbdir}/${CPP_MODEL}${CMAKE_SHARED_LIBRARY_SUFFIX} \;
-                          ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${CPP_MODEL}.desc.xml ${ddbdir}/${CPP_MODEL}.desc.xml
-                     )
+        DEPENDS
+            ${CPP_MODEL}
+            ${CPP_MODEL}.desc.xml
+            CREATE_DDBDIR
+        COMMAND
+            ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${CPP_MODEL}> ${ddbdir}/
+        COMMAND
+            ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${CPP_MODEL}.desc.xml ${ddbdir}/
+        )
 
     ADD_DEPENDENCIES(CPP_FILES_INSTALL ${CPP_MODEL}_INSTALL)
 ENDMACRO(COMPILE_CPP_MODEL)
@@ -272,4 +270,4 @@ INSTALL(PROGRAMS ${PYTHON_SCRIPTS_MODELS} DESTINATION ${sbindir})
 
 # List of model subdirectories
 ADD_SUBDIRECTORY(CPP)
-ADD_SUBDIRECTORY(Modelica)
+#ADD_SUBDIRECTORY(Modelica)
