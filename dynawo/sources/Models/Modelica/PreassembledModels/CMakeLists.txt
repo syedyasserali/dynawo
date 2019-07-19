@@ -40,13 +40,13 @@ SET(MODELICA_PREASSEMBLED_MODELS
     TapChangerAutomaton.xml
     TapChangerBlockingArea.xml
     UnderVoltageAutomaton.xml
-   )
+    )
 
 # PYTHON scripts preassembled models
 SET(PYTHON_SCRIPTS_PREASSEMBLED_MODELS
-  buildChecker.py
-  depChecker.py
-  )
+    buildChecker.py
+    depChecker.py
+    )
 
 INSTALL(PROGRAMS ${PYTHON_SCRIPTS_PREASSEMBLED_MODELS} DESTINATION ${sbindir})
 

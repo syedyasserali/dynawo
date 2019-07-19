@@ -116,19 +116,6 @@ int main(int argc, char ** argv) {
     packageName += ".";
   }
 
-  // find the current installDir
-  string currentPath = prettyPath(current_path());
-  string argvs = prettyPath(string(argv[0]));
-  string fullPathBin = "";
-  if (argvs.substr(0, 1) == "/") {  // fullPath
-    fullPathBin = argvs;
-  } else {
-    fullPathBin = prettyPath(currentPath + "/" + argvs);  // construct the full path of the binary
-  }
-  int size = string("compileModelicaModel").size();
-  fullPathBin.erase(fullPathBin.end() - size, fullPathBin.end());  // erase the name of the binary file
-  string installDir = prettyPath(fullPathBin + "/../");  // the binary is in the sbin directory, so the install dir is in sbin/../
-
   // Prepare workspace
   if (!is_directory(outputDir))
     create_directory(outputDir);
@@ -226,7 +213,7 @@ modelicaCompile(const string& modelName, const string& outputDir,
 
   // We pass the scriptVarExt.py on the .mo compilation
   std::cout << " Creation of " << moFile << " file with external variables" << std::endl;
-  string varExtCommand = "python " + scriptsDir1 + "/scriptVarExt.py --fileVarExt=\"" + extVarFile + "\" --file=\"" + moFile + "\" --pre";
+  string varExtCommand = "python " + scriptsDir1 + "/scriptVarExt.py --fileVarExt=" + extVarFile + " --file=" + moFile + " --pre";
 
   bool doPrintLogs = true;
   string result = executeCommand(varExtCommand, doPrintLogs);
@@ -291,7 +278,7 @@ void mosAddFilesImport(const bool importModelicaPackage, const vector<string>& f
   if (filesToImport.size() > 0) {
     mosFile << "// .. Load custom files" << std::endl;
     for (vector<string>::const_iterator itFile = filesToImport.begin(); itFile != filesToImport.end(); ++itFile) {
-      mosFile << "loadFile(\"" << *itFile << "\"); getErrorString();" << std::endl;
+      mosFile << "loadFile(\"" << boost::replace_all_copy(*itFile, "\\", "/") << "\"); getErrorString();" << std::endl;
     }
   }
   mosFile << std::endl;

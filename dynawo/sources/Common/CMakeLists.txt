@@ -107,7 +107,7 @@ SET(UTIL_SOURCES
     )
 
 SET(UTIL_INCLUDE_HEADERS
-    DYNTimer.cpp
+    DYNTimer.h
     )
 
 ADD_LIBRARY(dynawo_Common ${LIBRARY_TYPE} ${COMMON_SOURCES})
