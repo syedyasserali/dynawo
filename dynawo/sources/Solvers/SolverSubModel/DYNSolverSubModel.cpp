@@ -223,10 +223,8 @@ SolverSubModel::evalFInit_KIN(N_Vector yy, N_Vector rr, void *data) {
     vector<std::pair<double, int> >::iterator it;
     int i = 0;
     for (it = fErr.begin(); it != fErr.end(); ++it) {
-#ifdef FVA
       Trace::debug("MODELER") << DYNLog(SolveParametersError, tolerance, it->second, irr[it->second],
-                                 subModel->getFequationByLocalIndex(it->second)) << Trace::endline;
-#endif
+                                 "" /*FIXME: subModel->getFequationByLocalIndex(it->second)*/) << Trace::endline;
 
       if (i >= nbErr) {
         Trace::debug("MODELER") << " =================================================================" << Trace::endline;

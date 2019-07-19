@@ -66,6 +66,9 @@ ADD_CUSTOM_TARGET(CPP_FILES_INSTALL
                   COMMENT "Installing C++ models"
                  )
 
+SET(EXTERNAL_VARIABLES_EXTENSION ".extvar")
+SET(DESCRIPTION_XML_EXTENSION ".desc.xml")
+
 #
 # Macro called to install a .mo or .extvar file
 # to ddbdir. Automatically adds the dependencies
@@ -74,39 +77,40 @@ ADD_CUSTOM_TARGET(CPP_FILES_INSTALL
 MACRO(INSTALL_MODEL_FILE
           FILE_TO_INSTALL
      )
-    file(RELATIVE_PATH RELATIVE_MODELICA_MODEL_DIR ${DYNAWO_MODELICA_MODELS_ROOT} ${CMAKE_CURRENT_SOURCE_DIR})
+    FILE(RELATIVE_PATH RELATIVE_MODELICA_MODEL_DIR ${DYNAWO_MODELICA_MODELS_ROOT} ${CMAKE_CURRENT_SOURCE_DIR})
 
     # Generate a target name for the model
-    string (REPLACE "/" "_" TARGET_NAME "${RELATIVE_MODELICA_MODEL_DIR}/${FILE_TO_INSTALL}")
+    STRING(REPLACE "/" "_" TARGET_NAME "${RELATIVE_MODELICA_MODEL_DIR}/${FILE_TO_INSTALL}")
 
     # Extract the (short) file extension
-    string (FIND ${FILE_TO_INSTALL} "." SHORT_EXTENSION_INDEX REVERSE)
-    string (SUBSTRING ${FILE_TO_INSTALL} ${SHORT_EXTENSION_INDEX} -1 SHORT_EXTENSION)
+    STRING(FIND ${FILE_TO_INSTALL} "." SHORT_EXTENSION_INDEX REVERSE)
+    STRING(SUBSTRING ${FILE_TO_INSTALL} ${SHORT_EXTENSION_INDEX} -1 SHORT_EXTENSION)
+    STRING(TOLOWER ${SHORT_EXTENSION} SHORT_EXTENSION_LOWER)
 
-    SET (OUTPUT_FILE_NAME "${FILE_TO_INSTALL}")
-    SET (OUTPUT_FILE_PATH ${ddbdir}/${RELATIVE_MODELICA_MODEL_DIR}/${OUTPUT_FILE_NAME})
+    SET(OUTPUT_FILE_NAME "${FILE_TO_INSTALL}")
+    SET(OUTPUT_FILE_PATH ${ddbdir}/${RELATIVE_MODELICA_MODEL_DIR}/${OUTPUT_FILE_NAME})
 
     ADD_CUSTOM_TARGET(${TARGET_NAME}
-                      DEPENDS CREATE_DDBDIR
-                      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${FILE_TO_INSTALL} ${OUTPUT_FILE_PATH}
-                     )
+        DEPENDS CREATE_DDBDIR
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${FILE_TO_INSTALL} ${OUTPUT_FILE_PATH}
+        )
 
     # Run xmllint on external variable files in order to include possible sub-model external variables
-    string (TOLOWER ${SHORT_EXTENSION} SHORT_EXTENSION_LOWER)
-    set (EXTERNAL_VARIABLES_EXTENSION ".extvar")
-    IF (${SHORT_EXTENSION_LOWER} STREQUAL ${EXTERNAL_VARIABLES_EXTENSION})
-        SET (TARGET_PROCESSING_NAME "${TARGET_NAME}_EXTVAR_FLATTENING")
+    IF(UNIX AND ${SHORT_EXTENSION_LOWER} STREQUAL ${EXTERNAL_VARIABLES_EXTENSION})
+        SET(TARGET_PROCESSING_NAME "${TARGET_NAME}_EXTVAR_FLATTENING")
         ADD_CUSTOM_TARGET(${TARGET_PROCESSING_NAME}
-                      DEPENDS MODEL_FILES_INSTALL
-                      COMMENT "Processing external variable files for includes"
-                     )
+            DEPENDS MODEL_FILES_INSTALL
+            COMMENT "Processing external variable files for includes"
+            )
 
-        SET (TMP_FILE_PATH ${OUTPUT_FILE_PATH}.tmp)
-        add_custom_command (TARGET ${TARGET_PROCESSING_NAME}
-                            PRE_BUILD
-                            COMMAND xmllint --nofixup-base-uris --nowarning --xinclude "${OUTPUT_FILE_PATH}" --output "${TMP_FILE_PATH}" 2>&1 || ((echo "*** Failed to include external variable files") && exit -1)
-                            COMMAND xmllint --format --noblanks "${TMP_FILE_PATH}" --output "${OUTPUT_FILE_PATH}"
-                            COMMAND rm -rf "${TMP_FILE_PATH}")
+        SET(TMP_FILE_PATH ${OUTPUT_FILE_PATH}.tmp)
+        ADD_CUSTOM_COMMAND(
+            TARGET ${TARGET_PROCESSING_NAME}
+            PRE_BUILD
+            COMMAND xmllint --nofixup-base-uris --nowarning --xinclude "${OUTPUT_FILE_PATH}" --output "${TMP_FILE_PATH}" 2>&1 || ((echo "*** Failed to include external variable files") && exit -1)
+            COMMAND xmllint --format --noblanks "${TMP_FILE_PATH}" --output "${OUTPUT_FILE_PATH}"
+            COMMAND rm -rf "${TMP_FILE_PATH}"
+            )
 
         ADD_DEPENDENCIES(EXTERNAL_VARIABLES_FLATTENING ${TARGET_PROCESSING_NAME})
     ENDIF()
@@ -130,76 +134,83 @@ MACRO(COMPILE_PREASSEMBLED_MODEL
     # Generates .dep file for the preassembled model
     #
 #    ADD_CUSTOM_TARGET(${MODEL_NAME}_DEPCHECKER
-#                       COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/depChecker.py ${CMAKE_CURRENT_SOURCE_DIR}/${PREASSEMBLED_MODEL} ${MODEL_NAME}.dep
-#                       COMMENT "Checking ${MODEL_NAME} dependencies"
-#                      )
+#        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/depChecker.py ${CMAKE_CURRENT_SOURCE_DIR}/${PREASSEMBLED_MODEL} ${MODEL_NAME}.dep
+#        COMMENT "Checking ${MODEL_NAME} dependencies"
+#        )
 
     #
     # Custom command used to deal with .dep generated file dependency
     #
-#    ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${MODEL_NAME}.dep
-#                       DEPENDS
-#                           ${MODEL_NAME}_DEPCHECKER
-#                      )
+#    ADD_CUSTOM_COMMAND(
+#        OUTPUT ${MODEL_NAME}.dep
+#        DEPENDS ${MODEL_NAME}_DEPCHECKER
+#        )
 
     #
     # Builds the preassembled model if .dep file shows
     # it has been modified
     #
-    ADD_CUSTOM_COMMAND(OUTPUT ${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
-                       DEPENDS
-                           ${PREASSEMBLED_MODEL}
-#                           ${MODEL_NAME}_DEPCHECKER
-#                           ${CMAKE_CURRENT_BINARY_DIR}/${MODEL_NAME}.dep
-                           generate-preassembled
-                           MODEL_FILES_INSTALL
-                           EXTERNAL_VARIABLES_FLATTENING
-                       COMMAND
-                           python ${CMAKE_CURRENT_SOURCE_DIR}/buildChecker.py ${CMAKE_CURRENT_SOURCE_DIR}/${PREASSEMBLED_MODEL} > ${MODEL_NAME}.log 2>&1 ||
-                           (echo "*** [${MODEL_NAME}] Error : for more information see file ${CMAKE_CURRENT_BINARY_DIR}/${MODEL_NAME}.log" && exit -1)
-                       COMMAND
-                           ${bindir}/launcher --generate-preassembled --model-list ${CMAKE_CURRENT_SOURCE_DIR}/${PREASSEMBLED_MODEL} --output-dir ${CMAKE_CURRENT_BINARY_DIR} --remove-model-files true >> ${MODEL_NAME}.log 2>&1 ||
-                           (echo "*** [${MODEL_NAME}] Error : for more information please see file ${CMAKE_CURRENT_BINARY_DIR}/${MODEL_NAME}.log" && exit -1)
-                       COMMENT "Building ${MODEL_NAME}"
-                      )
+    ADD_CUSTOM_COMMAND(
+        OUTPUT ${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
+        DEPENDS
+            ${PREASSEMBLED_MODEL}
+            #${MODEL_NAME}_DEPCHECKER
+            #${MODEL_NAME}.dep
+###            MODEL_FILES_INSTALL
+###            EXTERNAL_VARIABLES_FLATTENING
+        COMMAND
+            ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/buildChecker.py ${CMAKE_CURRENT_SOURCE_DIR}/${PREASSEMBLED_MODEL} > ${MODEL_NAME}.log 2>&1 ||
+            (echo "*** [${MODEL_NAME}] Error : for more information see file ${CMAKE_CURRENT_BINARY_DIR}/${MODEL_NAME}.log" && exit -1)
+        COMMAND
+            ${CMAKE_COMMAND} -E env "${envlibpath}"
+                "DYNAWO_INSTALL_DIR=${installdir}"
+                "DYNAWO_DDB_DIR=${ddbdir}"
+                "DYNAWO_SCRIPTS_DIR=${sbindir}"
+                "DYNAWO_RESOURCES_DIR=${sharedir}"
+                "DYNAWO_DICTIONARIES=dictionaries_mapping"
+                    $<TARGET_FILE:generate-preassembled> --model-list ${CMAKE_CURRENT_SOURCE_DIR}/${PREASSEMBLED_MODEL} --output-dir ${CMAKE_CURRENT_BINARY_DIR} --remove-model-files true >> ${MODEL_NAME}.log 2>&1 ||
+            (echo "*** [${MODEL_NAME}] Error : for more information please see file ${CMAKE_CURRENT_BINARY_DIR}/${MODEL_NAME}.log" && exit -1)
+        COMMENT "Building ${MODEL_NAME}"
+        )
 
     #
     # Generates .desc.xml file for the preassembled model
     #
-    ADD_CUSTOM_COMMAND(OUTPUT ${MODEL_NAME}.desc.xml
-                       DEPENDS ${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX} dumpModel
-                       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                       COMMAND
-                           ${bindir}/launcher --dump-model -m ${CMAKE_CURRENT_BINARY_DIR}/${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX} -o ${CMAKE_CURRENT_BINARY_DIR}/${MODEL_NAME}.desc.xml \;
-                       COMMENT "Generating ${MODEL_NAME} description file"
-                      )
+    ADD_CUSTOM_COMMAND(
+        OUTPUT ${MODEL_NAME}${DESCRIPTION_XML_EXTENSION}
+        DEPENDS ${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
+        COMMAND
+            ${CMAKE_COMMAND} -E env "${envlibpath}" $<TARGET_FILE:dumpModel> -m ${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX} -o ${MODEL_NAME}${DESCRIPTION_XML_EXTENSION}
+        COMMENT "Generating ${MODEL_NAME} description file"
+        )
 
     #
     # Install built library and generated .desc.xml file into bdddir
     #
     ADD_CUSTOM_TARGET(${MODEL_NAME}
-                      DEPENDS
-#                          ${MODEL_NAME}.dep
-                          ${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
-                          ${MODEL_NAME}.desc.xml
-                          ${MODEL_NAME}.extvar
-                          CREATE_DDBDIR
-                      COMMAND
-                        ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX} ${ddbdir}/${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX} \;
-                        ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${MODEL_NAME}.desc.xml ${ddbdir}/${MODEL_NAME}.desc.xml
-                     )
+        DEPENDS
+            #${MODEL_NAME}.dep
+            ${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
+            ${MODEL_NAME}${DESCRIPTION_XML_EXTENSION}
+            ${MODEL_NAME}${EXTERNAL_VARIABLES_EXTENSION}
+            CREATE_DDBDIR
+        COMMAND
+            ${CMAKE_COMMAND} -E copy ${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX} ${ddbdir}/
+        COMMAND
+            ${CMAKE_COMMAND} -E copy ${MODEL_NAME}${DESCRIPTION_XML_EXTENSION} ${ddbdir}/
+        )
 
-    ADD_CUSTOM_TARGET(${MODEL_NAME}.extvar
-                      DEPENDS
-                          ${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
-                          CREATE_DDBDIR
-                      COMMAND
-                        test ! -e ${CMAKE_CURRENT_BINARY_DIR}/${MODEL_NAME}.extvar || cp ${CMAKE_CURRENT_BINARY_DIR}/${MODEL_NAME}.extvar ${ddbdir}/${MODEL_NAME}.extvar
-                      COMMENT "Install ${MODEL_NAME}.extvar external variables description file"
-                     )
+    ADD_CUSTOM_TARGET(${MODEL_NAME}${EXTERNAL_VARIABLES_EXTENSION}
+        DEPENDS
+            ${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
+            CREATE_DDBDIR
+        COMMAND
+            (${CMAKE_COMMAND} -E copy ${MODEL_NAME}${EXTERNAL_VARIABLES_EXTENSION} ${ddbdir}/ || ${CMAKE_COMMAND} -E echo_append This is not an error !) >> ${MODEL_NAME}.log 2>&1
+        COMMENT "Install ${MODEL_NAME}${EXTERNAL_VARIABLES_EXTENSION} external variables description file"
+        )
 
     ADD_DEPENDENCIES(PREASSEMBLED_MODEL_FILES_INSTALL ${MODEL_NAME})
-    ADD_DEPENDENCIES(PREASSEMBLED_MODEL_FILES_INSTALL ${MODEL_NAME}.extvar)
+    ADD_DEPENDENCIES(PREASSEMBLED_MODEL_FILES_INSTALL ${MODEL_NAME}${EXTERNAL_VARIABLES_EXTENSION})
 ENDMACRO(COMPILE_PREASSEMBLED_MODEL)
 
 #
@@ -213,13 +224,13 @@ MACRO(COMPILE_CPP_MODEL
      )
 
     ADD_CUSTOM_TARGET(${CPP_MODEL}_HPP
-                      COMMAND
-                          ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_SOURCE_DIR}/${CPP_MODEL}.hpp
-                      COMMAND
-                          ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../checkSum_ModelsCPP.py -m ${CMAKE_CURRENT_SOURCE_DIR}/${CPP_MODEL} 2>&1 ||
-                          (echo "*** [${CPP_MODEL}] Error : for more information see previous log" && exit -1)
-                      COMMENT "Creating checkSum for ${CPP_MODEL}"
-                     )
+        COMMAND
+            ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_SOURCE_DIR}/${CPP_MODEL}.hpp
+        COMMAND
+            ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../checkSum_ModelsCPP.py -m ${CMAKE_CURRENT_SOURCE_DIR}/${CPP_MODEL} 2>&1 ||
+            (echo "*** [${CPP_MODEL}] Error : for more information see previous log" && exit -1)
+        COMMENT "Creating checkSum for ${CPP_MODEL}"
+        )
 
     ADD_LIBRARY(${CPP_MODEL} SHARED EXCLUDE_FROM_ALL ${CPP_SOURCES})
 
@@ -239,23 +250,22 @@ MACRO(COMPILE_CPP_MODEL
     ENDIF()
 
     ADD_CUSTOM_COMMAND(
-        OUTPUT ${CPP_MODEL}.desc.xml
-        DEPENDS ${CPP_MODEL} dumpModel
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        OUTPUT ${CPP_MODEL}${DESCRIPTION_XML_EXTENSION}
+        DEPENDS ${CPP_MODEL}
         COMMAND
-            ${CMAKE_COMMAND} -E env "${envlibpath}" $<TARGET_FILE:dumpModel> -m $<TARGET_FILE:${CPP_MODEL}> -o ${CPP_MODEL}.desc.xml
+            ${CMAKE_COMMAND} -E env "${envlibpath}" $<TARGET_FILE:dumpModel> -m $<TARGET_FILE:${CPP_MODEL}> -o ${CPP_MODEL}${DESCRIPTION_XML_EXTENSION}
         COMMENT "Building ${CPP_MODEL} description file"
         )
 
     ADD_CUSTOM_TARGET(${CPP_MODEL}_INSTALL
         DEPENDS
             ${CPP_MODEL}
-            ${CPP_MODEL}.desc.xml
+            ${CPP_MODEL}${DESCRIPTION_XML_EXTENSION}
             CREATE_DDBDIR
         COMMAND
             ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${CPP_MODEL}> ${ddbdir}/
         COMMAND
-            ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${CPP_MODEL}.desc.xml ${ddbdir}/
+            ${CMAKE_COMMAND} -E copy ${CPP_MODEL}${DESCRIPTION_XML_EXTENSION} ${ddbdir}/
         )
 
     ADD_DEPENDENCIES(CPP_FILES_INSTALL ${CPP_MODEL}_INSTALL)
@@ -263,11 +273,11 @@ ENDMACRO(COMPILE_CPP_MODEL)
 
 # PYTHON scripts for models
 SET(PYTHON_SCRIPTS_MODELS
-  checkSum_ModelsCPP.py
-  )
+    checkSum_ModelsCPP.py
+    )
 
 INSTALL(PROGRAMS ${PYTHON_SCRIPTS_MODELS} DESTINATION ${sbindir})
 
 # List of model subdirectories
 ADD_SUBDIRECTORY(CPP)
-#ADD_SUBDIRECTORY(Modelica)
+ADD_SUBDIRECTORY(Modelica)
