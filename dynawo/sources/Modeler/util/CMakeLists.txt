@@ -35,7 +35,7 @@ IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   TARGET_LINK_LIBRARIES(dumpModel "-lrt")
 ENDIF()
 
-INSTALL(TARGETS dumpModel DESTINATION ${sbindir})
+INSTALL(TARGETS dumpModel EXPORT dynawo-targets DESTINATION ${sbindir})
 
 #################################
 #     generate-preassembled     #
@@ -67,4 +67,4 @@ ENDIF()
 
 SET_TARGET_PROPERTIES(generate-preassembled PROPERTIES VERSION ${DYNAWO_VERSION_STRING})
 
-INSTALL(TARGETS generate-preassembled DESTINATION ${sbindir})
+INSTALL(TARGETS generate-preassembled EXPORT dynawo-targets DESTINATION ${sbindir})
