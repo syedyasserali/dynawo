@@ -41,14 +41,16 @@ SET_TARGET_PROPERTIES(dynawo PROPERTIES VERSION ${DYNAWO_VERSION_STRING})
 
 INSTALL(TARGETS dynawo DESTINATION ${bindir})
 
-# Launcher
-CONFIGURE_FILE(launcher.in launcher @ONLY)
+IF(NOT MSVC)
+    # Launcher
+    CONFIGURE_FILE(launcher.in launcher @ONLY)
 
-INSTALL(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/launcher DESTINATION ${bindir})
+    INSTALL(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/launcher DESTINATION ${bindir})
 
-# execution script for distribution
-SET(EXEC_DYNAWO
-    execDynawo.sh
-    )
+    # execution script for distribution
+    SET(EXEC_DYNAWO
+        execDynawo.sh
+        )
 
-INSTALL(PROGRAMS ${EXEC_DYNAWO} DESTINATION ${bindir})
+    INSTALL(PROGRAMS ${EXEC_DYNAWO} DESTINATION ${bindir})
+ENDIF()

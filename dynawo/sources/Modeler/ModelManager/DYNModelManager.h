@@ -31,11 +31,6 @@
 
 #ifdef _ADEPT_
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-
-#ifdef _MSC_VER
-#undef isinf   // avoid conflict in adept with macro isinf defined in math.h
-#endif
-
 #include "adept.h"
 #pragma GCC diagnostic error "-Wunused-parameter"
 #endif

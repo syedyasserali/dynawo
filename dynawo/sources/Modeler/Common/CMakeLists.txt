@@ -71,11 +71,12 @@ TARGET_COMPILE_DEFINITIONS(dynawo_ModelerCommon PUBLIC $<$<BOOL:${MSVC}>:_USE_MA
 
 TARGET_INCLUDE_DIRECTORIES(dynawo_ModelerCommon
     INTERFACE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:${includedir}>
     PUBLIC
-        ../../API/TL
-        ../../API/CSTR
-        ../DataInterface
+        $<TARGET_PROPERTY:dynawo_API_TL,INTERFACE_INCLUDE_DIRECTORIES>
+        $<TARGET_PROPERTY:dynawo_API_CSTR,INTERFACE_INCLUDE_DIRECTORIES>
+        $<TARGET_PROPERTY:dynawo_DataInterface,INTERFACE_INCLUDE_DIRECTORIES>
     )
 
 TARGET_LINK_LIBRARIES(dynawo_ModelerCommon
@@ -94,5 +95,5 @@ ENDIF()
 SET_TARGET_PROPERTIES(dynawo_ModelerCommon PROPERTIES VERSION ${MODELER_VERSION_STRING}
                                                     SOVERSION ${MODELER_VERSION_MAJOR})
 
-INSTALL(TARGETS dynawo_ModelerCommon DESTINATION ${libdir})
+INSTALL(TARGETS dynawo_ModelerCommon EXPORT dynawo-targets DESTINATION ${libdir})
 INSTALL(FILES ${MODELER_INCLUDE_HEADERS} DESTINATION ${includedir})

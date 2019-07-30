@@ -45,8 +45,8 @@ static void modelicaCompile(const string& modelName, const string& outputDir, co
                             bool& withInitFile,
                             const string& packageName,
                             bool noInit);  ///< Convert the whole (INIT when relevant + standard) Modelica model into a C++ model
-static void compileLib(const string& modelName, const string& libName, const string& outputDir);  ///< Compile the C++ model
-static string executeCommand(const string& command, const bool printLogs);  ///< Run a given command and return logs
+static void compileLib(const string& modelName, const string& outputDir);  ///< Compile the C++ model
+static string executeCommand(const string& command, const bool printLogs, const string& start_dir = "");  ///< Run a given command and return logs
 static string compileModelicaToC(const string& modelName, const string& fileToCompile, const vector<string>& libs,
                                const string& outputDir, const string& packageName);  ///< Convert one (INIT or standard) Modelica model into C code
 static string runOptions();  ///< Return modelica run options
@@ -57,16 +57,14 @@ static void generateModelFile(const string& modelName, const string& outputDir,
                               bool& withInitFile,
                               const string& additionalHeaderList,
                               const string& packageName);  ///< Rewrite parts of one whole Modelica model C/C++ code to fit Dynawo C/C++ requirements
-static void removeTemporaryFiles(const string& modelName, const string& outputDir, bool rmModels,
-                                const string& packageName);  ///< remove temporary compilation files
 static bool verifySharedObject(const string& library);  ///< Ensure that the generated compiled library can actually run
 
 static void mosAddHeader(const string& mosFilePath, ofstream& mosFile);  ///< Add a header to the .mos file
 static void mosAddFilesImport(const bool importModelicaPackage, const vector<string>& filesToImport,
                               ofstream& mosFile);  ///< Add files import commands to a .mos file
 static string mosRunFile(const string& mosFilePath);  ///< Run a given .mos file
-static bool copyInputFile(const string& fileName,
-    const string& inputDir, const string& outputDir);  ///< copy input file into the output folder, return true if the input file is equal to the output file
+static bool copyFile(const string& fileName,
+    const string& inputDir, const string& outputDir);  ///< copy file from input folder into output folder, return true if input file is equal to output file
 int main(int argc, char ** argv) {
   Trace::init();
 
@@ -79,18 +77,16 @@ int main(int argc, char ** argv) {
   po::options_description desc;
   vector<string> moFiles;
   vector<string> initFiles;
-  bool rmModels = false;
   bool noInit = false;
 
   desc.add_options()
           ("help,h", "produce help message")
-          ("model", po::value<string>(&modelName), "set the model name of the file to compile (model.mo needs to be in output-dir)")
-          ("input-dir", po::value<string>(&inputDir), "set input directory (default: output directory)")
-          ("output-dir", po::value<string>(&outputDir), "set output directory (default: current directory)")
+          ("model", po::value<string>(&modelName), "set the model name of the file to compile (model.mo needs to be in input-dir)")
+          ("input-dir", po::value<string>(&inputDir), "set input directory (default: current directory)")
+          ("output-dir", po::value<string>(&outputDir), "set output directory (default: model subdirectory in input directory)")
           ("moFiles", po::value< vector<string> >(&moFiles)->multitoken(), "modelica files to use for expansion")
           ("initFiles", po::value< vector<string> >(&initFiles)->multitoken(), "init files to use for expansion")
           ("lib", po::value<string>(&libName), "set the name of the output lib")
-          ("remove-model-files", po::value<bool>(&rmModels), "if true the .mo input files will be deleted (default: false)")
           ("additionalHeaderList", po::value< string >(&additionalHeaderList),
               "list of headers that should be included in the dynamic model files")
           ("package-name", po::value<string>(&packageName), "set the model name package")
@@ -109,7 +105,10 @@ int main(int argc, char ** argv) {
     return 1;
   }
   if (inputDir == "") {
-    inputDir = outputDir;
+    inputDir = ".";
+  }
+  if (outputDir == "") {
+    outputDir = inputDir + "/" + modelName;
   }
 
   if (packageName != "" && strcmp(&packageName.at(packageName.length() - 1), ".")) {
@@ -117,19 +116,18 @@ int main(int argc, char ** argv) {
   }
 
   // Prepare workspace
-  if (!is_directory(outputDir))
-    create_directory(outputDir);
   if (!is_directory(inputDir))
     throw DYNError(DYN::Error::MODELER, MissingModelicaInputFolder, inputDir);
-  bool moFilesEqual = copyInputFile(modelName + ".mo", inputDir, outputDir);
-  copyInputFile(modelName + ".extvar", inputDir, outputDir);
-  copyInputFile(modelName + "_INIT.mo", inputDir, outputDir);
-  // Force file deletion if input folder is not output folder to avoid having the model copy in the output folder.
-  // Otherwise follows user instruction
-  if (!moFilesEqual)
-    rmModels = true;
-
+#ifndef _DEBUG_
+  remove_all_in_directory(outputDir);
+#endif
+  if (!is_directory(outputDir))
+    create_directory(outputDir);
   string outputDir1 = prettyPath(outputDir);
+
+  bool moFilesEqual = copyFile(modelName + ".mo", inputDir, outputDir);
+  copyFile(modelName + ".extvar", inputDir, outputDir);
+  copyFile(modelName + "_INIT.mo", inputDir, outputDir);
 
   // Launch the compile of the model
   try {
@@ -150,15 +148,18 @@ int main(int argc, char ** argv) {
       string lib = outputDir1 + "/" + libName;
       remove(lib);
       // 2) attempt to generate the lib
-      compileLib(modelName, libName, outputDir1);
+      compileLib(modelName, outputDir1);
       // 3) if lib does not exist, we raise an error
       if (!exists(lib)) {
         throw DYNError(DYN::Error::MODELER, FileGenerationFailed, lib);
       } else {
-        removeTemporaryFiles(modelName, outputDir1, rmModels, packageName);
         bool valid = verifySharedObject(lib);
         if (!valid)
           throw DYNError(DYN::Error::MODELER, FileGenerationFailed, lib);
+        copyFile(libName, outputDir, inputDir);
+#ifndef _DEBUG_
+        remove_all_in_directory(outputDir1);
+#endif
       }
     }
 
@@ -181,7 +182,7 @@ int main(int argc, char ** argv) {
 
 
 bool
-copyInputFile(const string& fileName, const string& inputDir, const string& outputDir) {
+copyFile(const string& fileName, const string& inputDir, const string& outputDir) {
   string outputDir1 = prettyPath(outputDir);
   string inputDir1 = prettyPath(inputDir);
   string inputFile = absolute(fileName, inputDir1);
@@ -218,11 +219,6 @@ modelicaCompile(const string& modelName, const string& outputDir,
   bool doPrintLogs = true;
   string result = executeCommand(varExtCommand, doPrintLogs);
 
-  // OMC generates sources where it runs ... :(
-  // WARNING : not thread-safe
-  // @TODO : modify OMC to allow thread-safe modelica compilation
-  string currentPath = current_path();
-
   current_path(outputDir);
   std::cout << "output dir : " << outputDir << std::endl;
 
@@ -249,8 +245,6 @@ modelicaCompile(const string& modelName, const string& outputDir,
 
   // we generate the XML file for structuring the model
   compileModelicaToXML(modelName, modelTmpFile, libs, outputDir, packageName);
-
-  current_path(currentPath);
 }
 
 
@@ -289,13 +283,13 @@ void mosAddFilesImport(const bool importModelicaPackage, const vector<string>& f
 
 string
 mosRunFile(const string& mosFilePath) {
+  // OMC generates sources where it runs ... :(
   stringstream modelicaCommand;
-  modelicaCommand << "omcDynawo ";
-  modelicaCommand << mosFilePath;
+  modelicaCommand << "omcDynawo " << mosFilePath;
   string command = modelicaCommand.str();
 
   bool doPrintLogs = true;
-  string result = executeCommand(command, doPrintLogs);
+  string result = executeCommand(command, doPrintLogs, mosFilePath + "/..");
 
   string error = "\n";
   istringstream stream(result);
@@ -317,10 +311,10 @@ runOptions() {
 }
 
 string
-compileModelicaToC(const string& modelName, const string& fileToCompile, const vector<string>& libs, const string& /*outputDir*/, const string& packageName) {
+compileModelicaToC(const string& modelName, const string& fileToCompile, const vector<string>& libs, const string& outputDir, const string& packageName) {
   // Create a .mos file
   string mosFileName = "compileModelicaToC-" + modelName + ".mos";
-  ofstream mosFile(mosFileName.c_str(), ios::out | ios::trunc);
+  ofstream mosFile(absolute(mosFileName, outputDir), ios::out | ios::trunc);
 
   // add header
   mosAddHeader(mosFileName, mosFile);
@@ -344,11 +338,11 @@ compileModelicaToC(const string& modelName, const string& fileToCompile, const v
 }
 
 void
-compileModelicaToXML(const string& modelName, const string& fileToCompile, const vector<string>& libs, const string& /*outputDir*/,
+compileModelicaToXML(const string& modelName, const string& fileToCompile, const vector<string>& libs, const string& outputDir,
         const string& packageName) {
   // Create a .mos file
   string mosFileName = "createStructure-" + modelName + ".mos";
-  ofstream mosFile(mosFileName.c_str(), ios::out | ios::trunc);
+  ofstream mosFile(absolute(mosFileName, outputDir), ios::out | ios::trunc);
 
   // add header
   mosAddHeader(mosFileName, mosFile);
@@ -385,38 +379,23 @@ generateModelFile(const string& modelName, const string& outputDir, bool& withIn
 }
 
 void
-compileLib(const string& modelName, const string& libName, const string& outputDir) {
-  string outputDir1 = prettyPath(outputDir);
-  string scriptsDir1 = prettyPath(getEnvVar("DYNAWO_SCRIPTS_DIR"));
+compileLib(const string& modelName, const string& outputDir) {
+  string scriptsDir = prettyPath(getEnvVar("DYNAWO_SCRIPTS_DIR"));
 
-  string compileLibCommand = scriptsDir1 + "/compileCppModelicaModelInDynamicLib --model-name=" + modelName
-    + " --directory=" + outputDir1 + " --lib-name=" + libName;
+  ofstream cmakeFile(absolute("CMakeLists.txt", outputDir), ios::out | ios::trunc);
 
-#ifdef _DEBUG_
-  compileLibCommand += " --debug";
-#endif
+  cmakeFile << "cmake_minimum_required(VERSION 3.9.6)" << std::endl;
+  cmakeFile << "include(" << boost::replace_all_copy(absolute("compileCppModelicaModelInDynamicLib.cmake", scriptsDir), "\\", "/") << ")" << std::endl;
+
+  cmakeFile.close();
+
+  string compileLibCommand = "cmake -B" + outputDir + " -H" + outputDir + " -C" + absolute("PreloadCache.cmake", scriptsDir)
+                           + " -DMODEL_NAME=" + modelName + " && cmake --build " + outputDir;
 
   bool doPrintLogs = true;
   string result = executeCommand(compileLibCommand, doPrintLogs);
 
   return;
-}
-
-void
-removeTemporaryFiles(const string& modelName, const string& outputDir, bool rmModels, const string& packageName) {
-  string outputDir1 = prettyPath(outputDir);
-  string scriptsDir1 = prettyPath(getEnvVar("DYNAWO_SCRIPTS_DIR"));
-  string commandRemove = scriptsDir1 + "/cleanCompileModelicaModel --model=" + modelName + " --directory=" + outputDir1;
-  if (rmModels)
-    commandRemove += " --remove-model-files";
-#ifdef _DEBUG_
-  commandRemove += " --debug";
-#endif
-  if (packageName != "")
-    commandRemove += " --package-name=" + packageName;
-
-  bool doPrintLogs = true;
-  string result = executeCommand(commandRemove, doPrintLogs);
 }
 
 bool verifySharedObject(const string& library) {
@@ -447,9 +426,9 @@ bool verifySharedObject(const string& library) {
   return valid;
 }
 
-string executeCommand(const string& command, const bool printLogs) {
+string executeCommand(const string& command, const bool printLogs, const string& start_dir) {
   stringstream ss;
-  executeCommand(command, ss);
+  executeCommand(command, ss, start_dir);
   if (printLogs) {
     std::cout << ss.str() << std::endl;
   }

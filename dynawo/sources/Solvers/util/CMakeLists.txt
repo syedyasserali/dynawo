@@ -32,4 +32,4 @@ ELSEIF(NOT MSVC)
     TARGET_LINK_LIBRARIES(dumpSolver "-Wl,--whole-archive" dynawo_Util "-Wl,--no-whole-archive")
 ENDIF()
 
-INSTALL(TARGETS dumpSolver DESTINATION ${sbindir})
+INSTALL(TARGETS dumpSolver EXPORT dynawo-targets DESTINATION ${sbindir})

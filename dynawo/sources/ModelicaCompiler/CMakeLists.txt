@@ -18,9 +18,6 @@ ADD_EXECUTABLE(compileModelicaModel ${COMPILER_MODELICA_OMC_SOURCES})
 TARGET_LINK_LIBRARIES(compileModelicaModel
     dynawo_Common
     ${CMAKE_DL_LIBS}
-    #dynawo_ModelerCommon
-    #dynawo_SolverCommon
-    #dynawo_SolverSubModel
     #pthread
     #"-rdynamic"
     )
@@ -37,15 +34,11 @@ ELSEIF(NOT MSVC)
     TARGET_LINK_LIBRARIES(compileModelicaModel "-Wl,--whole-archive" dynawo_Util "-Wl,--no-whole-archive")
 ENDIF()
 
-INSTALL(TARGETS compileModelicaModel DESTINATION ${sbindir})
+INSTALL(TARGETS compileModelicaModel EXPORT dynawo-targets DESTINATION ${sbindir})
 
-#compileCppModelicaModelInDynamicLib
-CONFIGURE_FILE(compileCppModelicaModelInDynamicLib.in ${CMAKE_CURRENT_BINARY_DIR}/compileCppModelicaModelInDynamicLib @ONLY)
-
-INSTALL(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/compileCppModelicaModelInDynamicLib DESTINATION ${sbindir})
-
-#cleanCompileModelicaModel
-INSTALL(PROGRAMS cleanCompileModelicaModel DESTINATION ${sbindir})
+CONFIGURE_FILE(compileCppModelicaModelInDynamicLib.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/compileCppModelicaModelInDynamicLib.cmake @ONLY)
+CONFIGURE_FILE(PreloadCache.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/PreloadCache.cmake @ONLY)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/compileCppModelicaModelInDynamicLib.cmake ${CMAKE_CURRENT_BINARY_DIR}/PreloadCache.cmake DESTINATION ${sbindir})
 
 #Add post processing scripts
 ADD_SUBDIRECTORY(Scripts_OMC_${OPENMODELICA_VERSION})
