@@ -20,7 +20,6 @@ set(LIBZIP_BUILD_SAMPLES TRUE CACHE BOOL "Build LibZIP samples.")
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(LibArchive 2.8.0 REQUIRED)
 find_package(Boost 1.39 REQUIRED)
 if (LIBZIP_BUILD_TESTS)
     # workaround to find GTest 1.8.1 even in Debug
@@ -85,7 +84,6 @@ endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${Boost_INCLUDE_DIRS})
-include_directories(${LibArchive_INCLUDE_DIRS})
 if (LIBZIP_BUILD_TESTS)
     include_directories(${GTEST_INCLUDE_DIRS})
 endif ()
