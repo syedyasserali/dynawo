@@ -541,7 +541,7 @@ Compiler::collectMacroConnections(const map<string, shared_ptr<dynamicdata::Macr
   }
 }
 
-const string&
+const string
 Compiler::writeConcatModelicaFile(const std::string& modelID, const shared_ptr<ModelDescription> & modelicaModelDescription,
     const vector<shared_ptr<dynamicdata::Connector> >& macroConnection,
     const map<string, shared_ptr<dynamicdata::UnitDynamicModel> >& unitDynamicModels,
@@ -648,7 +648,7 @@ Compiler::writeExtvarFile(const shared_ptr<ModelDescription> & modelicaModelDesc
   }
 }
 
-const string&
+const string
 Compiler::writeInitFile(const shared_ptr<ModelDescription> & modelicaModelDescription,
     const map<string, shared_ptr<dynamicdata::UnitDynamicModel> >& unitDynamicModels,
     const map<string, shared_ptr<dynamicdata::MacroConnect> >& macroConnects) const {

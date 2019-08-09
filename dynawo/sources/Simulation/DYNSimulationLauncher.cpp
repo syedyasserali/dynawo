@@ -28,6 +28,7 @@
 #include "DYNSimulation.h"
 #include "DYNSimulationContext.h"
 #include "DYNFileSystemUtils.h"
+#define DYNTIMERS_INSTANCE  // this should be defined only once in main source before header inclusion
 #include "DYNTimer.h"
 #include "DYNExecUtils.h"
 #include "JOBXmlImporter.h"
