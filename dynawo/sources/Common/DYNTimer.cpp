@@ -24,12 +24,13 @@
 using std::stringstream;
 
 namespace DYN {
-Timers Timers::INSTANCE;
 
 Timers::Timers() {
+  std::cerr << __func__ << std::endl;
 }
 
 Timers::~Timers() {
+  std::cerr << __func__ << std::endl;
 #ifdef _DEBUG_
   std::map<std::string, double>::const_iterator itT;
   for (itT = timers_.begin(); itT != timers_.end(); ++itT) {
@@ -40,6 +41,12 @@ Timers::~Timers() {
 
 void
 Timers::add(const std::string& name, const double& time) {
+  static Timers INSTANCE;  ///< unique instance of timers
+  INSTANCE.add_(name, time);
+}
+
+void
+Timers::add_(const std::string& name, const double& time) {
   timers_[name] += time;
   nbAppels_[name] += 1;
 }
@@ -61,7 +68,7 @@ Timer::start() {
 void
 Timer::stop() {
 #ifdef _DEBUG_
-  Timers::INSTANCE.add(name_, timer_.elapsed());
+  Timers::add(name_, timer_.elapsed());
 #endif
   isStopped_ = true;
 }

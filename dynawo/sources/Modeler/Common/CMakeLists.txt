@@ -85,12 +85,9 @@ TARGET_LINK_LIBRARIES(dynawo_ModelerCommon
     dynawo_API_FS
     dynawo_API_EXTVAR
     dynawo_API_DYD
+    dynawo_Util
     ${CMAKE_DL_LIBS}
     )
-
-IF(LIBRARY_TYPE STREQUAL "SHARED")
-    TARGET_LINK_LIBRARIES(dynawo_ModelerCommon dynawo_Util)
-ENDIF()
 
 SET_TARGET_PROPERTIES(dynawo_ModelerCommon PROPERTIES VERSION ${MODELER_VERSION_STRING}
                                                     SOVERSION ${MODELER_VERSION_MAJOR})

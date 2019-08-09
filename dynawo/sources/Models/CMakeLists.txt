@@ -156,8 +156,9 @@ MACRO(COMPILE_PREASSEMBLED_MODEL
             ${PREASSEMBLED_MODEL}
             #${MODEL_NAME}_DEPCHECKER
             #${MODEL_NAME}.dep
-            ###MODEL_FILES_INSTALL
-            ###EXTERNAL_VARIABLES_FLATTENING
+            MODEL_FILES_INSTALL
+            EXTERNAL_VARIABLES_FLATTENING
+            dynawo_ModelManager
         COMMAND
             ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/buildChecker.py ${CMAKE_CURRENT_SOURCE_DIR}/${PREASSEMBLED_MODEL} > ${MODEL_NAME}.log 2>&1 ||
             (echo "*** [${MODEL_NAME}] Error : for more information see file ${CMAKE_CURRENT_BINARY_DIR}/${MODEL_NAME}.log" && exit -1)
@@ -243,10 +244,6 @@ MACRO(COMPILE_CPP_MODEL
         IF(LIBRARY_TYPE STREQUAL "STATIC")
             TARGET_LINK_LIBRARIES(${CPP_MODEL} "-flat_namespace -undefined warning")
         ENDIF()
-    ENDIF()
-
-    IF(LIBRARY_TYPE STREQUAL "SHARED")
-        TARGET_LINK_LIBRARIES(${CPP_MODEL} dynawo_Util)
     ENDIF()
 
     ADD_CUSTOM_COMMAND(

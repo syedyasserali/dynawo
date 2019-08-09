@@ -49,6 +49,7 @@ ADD_EXECUTABLE(generate-preassembled ${DYD_LIB_GENERATION_SOURCES})
 
 TARGET_LINK_LIBRARIES(generate-preassembled
     dynawo_ModelerCommon
+    ${XercesC_LIBRARIES}
     #pthread
     #"-rdynamic"
     )

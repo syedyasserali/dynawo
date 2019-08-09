@@ -20,7 +20,9 @@ ADD_EXECUTABLE(dynawo ${DYNAWO_SOURCES})
 
 TARGET_LINK_LIBRARIES(dynawo
     dynawo_Simulation
-    #${ZLIB_LIBRARY}
+    ${LibArchive_LIBRARIES}
+    ${ZLIB_LIBRARIES}
+    ${BZIP2_LIBRARIES}
     #pthread
     #"-rdynamic"
     )
