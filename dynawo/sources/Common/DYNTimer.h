@@ -37,6 +37,15 @@ namespace DYN {
 class Timers : private boost::noncopyable {
  public:
   /**
+   * @brief add new statistics for a given timer
+   *
+   * @param name name of timer
+   * @param time time elapsed for the timer
+   */
+  static void add(const std::string& name, const double& time);
+
+ private:
+  /**
    * @brief default constructor
    */
   Timers();
@@ -52,9 +61,7 @@ class Timers : private boost::noncopyable {
    * @param name name of timer
    * @param time time elapsed for the timer
    */
-  void add(const std::string& name, const double& time);
-
-  static Timers INSTANCE;  ///< unique instance of timers
+  void add_(const std::string& name, const double& time);
 
  private:
   std::map<std::string, double> timers_;  ///< association between timers and time elapsed

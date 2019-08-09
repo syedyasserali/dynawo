@@ -41,13 +41,10 @@ TARGET_INCLUDE_DIRECTORIES(dynawo_SolverCommon
 
 TARGET_LINK_LIBRARIES(dynawo_SolverCommon
     dynawo_Common
+    dynawo_Util
     ${SUNDIALS_NVECSERIAL_LIBRARY}
     ${CMAKE_DL_LIBS}
     )
-
-IF(LIBRARY_TYPE STREQUAL "SHARED")
-    TARGET_LINK_LIBRARIES(dynawo_SolverCommon dynawo_Util)
-ENDIF()
 
 SET_TARGET_PROPERTIES(dynawo_SolverCommon PROPERTIES VERSION ${SOLVER_COMMON_VERSION_STRING}
                                                    SOVERSION ${SOLVER_COMMON_VERSION_MAJOR})
