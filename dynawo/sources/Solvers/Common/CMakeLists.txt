@@ -43,7 +43,6 @@ TARGET_LINK_LIBRARIES(dynawo_SolverCommon
     dynawo_Common
     dynawo_Util
     ${SUNDIALS_NVECSERIAL_LIBRARY}
-    ${CMAKE_DL_LIBS}
     )
 
 SET_TARGET_PROPERTIES(dynawo_SolverCommon PROPERTIES VERSION ${SOLVER_COMMON_VERSION_STRING}

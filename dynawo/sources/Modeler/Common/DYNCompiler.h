@@ -189,7 +189,7 @@ class Compiler {
    * @param internalConnects modelica Model internal connections
    * @returns the the path to the model concat file
    */
-  const std::string& writeConcatModelicaFile(const std::string& modelID, const boost::shared_ptr<ModelDescription>& modelicaModelDescription,
+  const std::string writeConcatModelicaFile(const std::string& modelID, const boost::shared_ptr<ModelDescription>& modelicaModelDescription,
       const std::vector<boost::shared_ptr<dynamicdata::Connector> >& macroConnection,
       const std::map<std::string, boost::shared_ptr<dynamicdata::UnitDynamicModel> >& unitDynamicModels,
       const std::vector<boost::shared_ptr<dynamicdata::Connector> >& internalConnects) const;
@@ -215,7 +215,7 @@ class Compiler {
    * @param macroConnects modelica Model macro connections map
    * @returns the the path to the init concat file
    */
-  const std::string& writeInitFile(const boost::shared_ptr<ModelDescription>& modelicaModelDescription,
+  const std::string writeInitFile(const boost::shared_ptr<ModelDescription>& modelicaModelDescription,
       const std::map<std::string, boost::shared_ptr<dynamicdata::UnitDynamicModel> >& unitDynamicModels,
       const std::map<std::string, boost::shared_ptr<dynamicdata::MacroConnect> >& macroConnects) const;
 

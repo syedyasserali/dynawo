@@ -86,7 +86,6 @@ TARGET_LINK_LIBRARIES(dynawo_ModelerCommon
     dynawo_API_EXTVAR
     dynawo_API_DYD
     dynawo_Util
-    ${CMAKE_DL_LIBS}
     )
 
 SET_TARGET_PROPERTIES(dynawo_ModelerCommon PROPERTIES VERSION ${MODELER_VERSION_STRING}
