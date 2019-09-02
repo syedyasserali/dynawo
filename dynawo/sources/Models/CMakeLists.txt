@@ -169,6 +169,7 @@ MACRO(COMPILE_PREASSEMBLED_MODEL
                 "DYNAWO_SCRIPTS_DIR=${sbindir}"
                 "DYNAWO_RESOURCES_DIR=${sharedir}"
                 "DYNAWO_DICTIONARIES=dictionaries_mapping"
+                "DYNAWO_XSD_DIR=${sharedir}/xsd/"
                     $<TARGET_FILE:generate-preassembled> --model-list ${CMAKE_CURRENT_SOURCE_DIR}/${PREASSEMBLED_MODEL} --output-dir ${CMAKE_CURRENT_BINARY_DIR} --remove-model-files true >> ${MODEL_NAME}.log 2>&1 ||
             (echo "*** [${MODEL_NAME}] Error : for more information please see file ${CMAKE_CURRENT_BINARY_DIR}/${MODEL_NAME}.log" && exit -1)
         COMMENT "Building ${MODEL_NAME}"
@@ -206,7 +207,8 @@ MACRO(COMPILE_PREASSEMBLED_MODEL
             ${MODEL_NAME}/${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
             CREATE_DDBDIR
         COMMAND
-            (${CMAKE_COMMAND} -E copy ${MODEL_NAME}/${MODEL_NAME}${EXTERNAL_VARIABLES_EXTENSION} ${ddbdir}/ || ${CMAKE_COMMAND} -E echo_append This is not an error !) >> ${MODEL_NAME}.log 2>&1
+            # First echo_append prevents cmake from changing ( to "(" that is an invalid bash command
+            ${CMAKE_COMMAND} -E echo_append && (${CMAKE_COMMAND} -E copy ${MODEL_NAME}/${MODEL_NAME}${EXTERNAL_VARIABLES_EXTENSION} ${ddbdir}/ || ${CMAKE_COMMAND} -E echo_append This is not an error !) >> ${MODEL_NAME}.log 2>&1
         COMMENT "Install ${MODEL_NAME}${EXTERNAL_VARIABLES_EXTENSION} external variables description file"
         )
 

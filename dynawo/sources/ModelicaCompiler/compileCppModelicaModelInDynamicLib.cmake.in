@@ -15,7 +15,7 @@ PROJECT(model CXX)
 SET(CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel.")
 
 SET(CMAKE_CXX_FLAGS "@CMAKE_CXX_FLAGS@")
- 
+
 IF(NOT MODEL_NAME OR "${MODEL_NAME}" STREQUAL "")
     MESSAGE(FATAL_ERROR "Need a model name to compile: please add -DMODEL_NAME=...")
 ENDIF()
@@ -45,6 +45,7 @@ ENDIF()
 
 ADD_LIBRARY(lib SHARED ${MODEL_SOURCES})
 set_target_properties(lib PROPERTIES OUTPUT_NAME ${MODEL_NAME})
+set_target_properties(lib PROPERTIES PREFIX "")
 
 TARGET_INCLUDE_DIRECTORIES(lib PUBLIC $ENV{DYNAWO_ADDITIONAL_INCLUDE_FOR_PREASSEMBLED})
 

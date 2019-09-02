@@ -57,6 +57,7 @@ TARGET_INCLUDE_DIRECTORIES(dynawo_DataInterface
 TARGET_LINK_LIBRARIES(dynawo_DataInterface
     dynawo_ModelerCommon
     iidm
+    iidm-ext-standbyautomaton-xml
     )
 
 

@@ -62,7 +62,7 @@ static bool verifySharedObject(const string& library);  ///< Ensure that the gen
 static void mosAddHeader(const string& mosFilePath, ofstream& mosFile);  ///< Add a header to the .mos file
 static void mosAddFilesImport(const bool importModelicaPackage, const vector<string>& filesToImport,
                               ofstream& mosFile);  ///< Add files import commands to a .mos file
-static string mosRunFile(const string& mosFilePath);  ///< Run a given .mos file
+static string mosRunFile(const string& mosFilePath, const string& path);  ///< Run a given .mos file
 static bool copyFile(const string& fileName,
     const string& inputDir, const string& outputDir);  ///< copy file from input folder into output folder, return true if input file is equal to output file
 int main(int argc, char ** argv) {
@@ -125,7 +125,7 @@ int main(int argc, char ** argv) {
     create_directory(outputDir);
   string outputDir1 = prettyPath(outputDir);
 
-  bool moFilesEqual = copyFile(modelName + ".mo", inputDir, outputDir);
+  copyFile(modelName + ".mo", inputDir, outputDir);
   copyFile(modelName + ".extvar", inputDir, outputDir);
   copyFile(modelName + "_INIT.mo", inputDir, outputDir);
 
@@ -219,7 +219,6 @@ modelicaCompile(const string& modelName, const string& outputDir,
   bool doPrintLogs = true;
   string result = executeCommand(varExtCommand, doPrintLogs);
 
-  current_path(outputDir);
   std::cout << "output dir : " << outputDir << std::endl;
 
   // generate C/CPP files
@@ -282,14 +281,14 @@ void mosAddFilesImport(const bool importModelicaPackage, const vector<string>& f
 ///< Run a given .mos file
 
 string
-mosRunFile(const string& mosFilePath) {
+mosRunFile(const string& mosFilePath, const string& path) {
   // OMC generates sources where it runs ... :(
   stringstream modelicaCommand;
   modelicaCommand << "omcDynawo " << mosFilePath;
   string command = modelicaCommand.str();
 
   bool doPrintLogs = true;
-  string result = executeCommand(command, doPrintLogs, mosFilePath + "/..");
+  string result = executeCommand(command, doPrintLogs, path);
 
   string error = "\n";
   istringstream stream(result);
@@ -332,7 +331,7 @@ compileModelicaToC(const string& modelName, const string& fileToCompile, const v
   mosFile.close();
 
   // run the generated .mos file
-  return mosRunFile(mosFileName);
+  return mosRunFile(mosFileName, prettyPath(outputDir));
 }
 
 void
@@ -358,7 +357,7 @@ compileModelicaToXML(const string& modelName, const string& fileToCompile, const
   mosFile.close();
 
   // run the .mos file (without run options) to generate the .xml file
-  mosRunFile(mosFileName);
+  mosRunFile(mosFileName, prettyPath(outputDir));
 }
 
 void

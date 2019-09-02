@@ -45,6 +45,9 @@ ENDIF()
 SET_TARGET_PROPERTIES(dynawo_SolverIDA PROPERTIES VERSION ${SOLVER_IDA_VERSION_STRING}
                                                 SOVERSION ${SOLVER_IDA_VERSION_MAJOR})
 
+
+set_target_properties(dynawo_SolverIDA PROPERTIES PREFIX "")
+
 INSTALL(TARGETS dynawo_SolverIDA EXPORT dynawo-targets DESTINATION ${libdir})
 INSTALL(FILES ${SOLVER_IDA_INCLUDE_HEADERS} DESTINATION ${includedir})
 

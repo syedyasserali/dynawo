@@ -20,6 +20,7 @@ ADD_EXECUTABLE(dumpSolver ${DUMP_SOLVER_SOURCES})
 TARGET_LINK_LIBRARIES(dumpSolver
     XMLSAXFormatter${LibXML_LINK_SUFFIX}
     dynawo_SolverCommon
+    #pthread
     )
 
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
