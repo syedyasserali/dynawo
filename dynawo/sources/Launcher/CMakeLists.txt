@@ -20,6 +20,7 @@ ADD_EXECUTABLE(dynawo ${DYNAWO_SOURCES})
 
 TARGET_LINK_LIBRARIES(dynawo
     dynawo_Simulation
+    ${libZIP_LIBRARY}
     ${LibArchive_LIBRARIES}
     ${ZLIB_LIBRARIES}
     ${BZIP2_LIBRARIES}

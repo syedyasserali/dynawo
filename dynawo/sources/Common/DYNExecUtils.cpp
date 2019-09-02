@@ -30,6 +30,7 @@
 #include <cstring>
 #include <sstream>
 
+#include "DYNExecUtils.h"
 #include "DYNTrace.h"
 #include "DYNMacrosMessage.h"
 #include "DYNFileSystemUtils.h"

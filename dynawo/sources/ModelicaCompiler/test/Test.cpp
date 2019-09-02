@@ -59,7 +59,7 @@ TEST(ModelicaCompilerTestSuite, TestPackageOption) {
   std::stringstream ssCompileModelicaModel;
   executeCommand(varExtCommand, ssCompileModelicaModel);
   std::cout << ssCompileModelicaModel.str() << std::endl;
-  ASSERT_EQ(boost::filesystem::exists("compilation/Test" + std::string(sharedLibraryExtension())), true);
+  ASSERT_EQ(boost::filesystem::exists("Test" + std::string(sharedLibraryExtension())), true);
 }
 
 }  // namespace DYN
