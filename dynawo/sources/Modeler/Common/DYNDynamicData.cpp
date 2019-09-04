@@ -307,7 +307,7 @@ DynamicData::getParametersSet(const string& modelId, const string& parFile, cons
     referenceParameters_[parFile] = parametersSetCollection;
     return parametersSetCollection->getParametersSet(parId);
   } catch (const xml::sax::parser::ParserException& exp) {
-    throw DYNError(Error::MODELER, XmlParsingError, parFile, exp.what());
+    throw DYNError(Error::MODELER, XmlFileParsingError, parFile, exp.what());
   }
 }
 

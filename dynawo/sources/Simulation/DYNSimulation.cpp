@@ -503,7 +503,7 @@ Simulation::loadDynamicData() {
       data_.reset(new DataInterfaceIIDM(networkIIDM));
       boost::dynamic_pointer_cast<DataInterfaceIIDM>(data_)->initFromIIDM();
     } catch (const xml::sax::parser::ParserException& exp) {
-      throw DYNError(Error::GENERAL, XmlParsingError, iidmFile_, exp.what());
+      throw DYNError(Error::GENERAL, XmlFileParsingError, iidmFile_, exp.what());
     }
 
     data_->importStaticParameters();  // Import static model's parameters' values into DataInterface, these values are useful for referece parameters.
