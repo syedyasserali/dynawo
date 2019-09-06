@@ -38,7 +38,7 @@ MACRO(DESC_SOLVER SOLVER_NAME)
         DEPENDS ${SOLVER_NAME} dumpSolver
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMAND
-            ${CMAKE_COMMAND} -E env "${envlibpath}" $<TARGET_FILE:dumpSolver> -m $<TARGET_FILE:${SOLVER_NAME}> -o ${CMAKE_SHARED_LIBRARY_PREFIX}${SOLVER_NAME}.desc.xml
+            ${CMAKE_COMMAND} -E env "${envlibpath}" $<TARGET_FILE:dumpSolver> -m $<TARGET_FILE:${SOLVER_NAME}> -o ${SOLVER_NAME}.desc.xml
         COMMENT "Generating ${SOLVER_NAME} description file"
         )
 
@@ -53,7 +53,7 @@ MACRO(DESC_SOLVER SOLVER_NAME)
         COMMAND
             ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${SOLVER_NAME}> ${ddbdir}/
         COMMAND
-            ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}${SOLVER_NAME}.desc.xml ${ddbdir}/
+            ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${SOLVER_NAME}.desc.xml ${ddbdir}/
         )
 
     ADD_DEPENDENCIES(SOLVERS_FILES_INSTALL ${SOLVER_NAME}.desc)

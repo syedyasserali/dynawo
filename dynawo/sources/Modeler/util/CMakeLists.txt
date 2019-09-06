@@ -31,7 +31,7 @@ ELSEIF(NOT MSVC)
     TARGET_LINK_LIBRARIES(dumpModel "-Wl,--whole-archive" dynawo_Util "-Wl,--no-whole-archive")
 ENDIF()
 
-IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+IF ('${CMAKE_CXX_COMPILER_ID}' STREQUAL 'GNU')
   TARGET_LINK_LIBRARIES(dumpModel "-lrt")
 ENDIF()
 
@@ -54,7 +54,7 @@ TARGET_LINK_LIBRARIES(generate-preassembled
     #"-rdynamic"
     )
 
-IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+IF ('${CMAKE_CXX_COMPILER_ID}' STREQUAL 'GNU')
   TARGET_LINK_LIBRARIES(generate-preassembled "-lrt")
 ENDIF()
 
