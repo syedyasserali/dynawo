@@ -44,11 +44,10 @@ IF (APPLE)
 ENDIF()
 
 SET_TARGET_PROPERTIES(dynawo_SolverSIM PROPERTIES VERSION ${SOLVER_SIM_VERSION_STRING}
-                                                SOVERSION ${SOLVER_SIM_VERSION_MAJOR})
+                                                SOVERSION ${SOLVER_SIM_VERSION_MAJOR}
+                                                   PREFIX "")
 
 INSTALL(TARGETS dynawo_SolverSIM EXPORT dynawo-targets DESTINATION ${libdir})
 INSTALL(FILES ${SOLVER_SIM_INCLUDE_HEADERS} DESTINATION ${includedir})
-
-set_target_properties(dynawo_SolverSIM PROPERTIES PREFIX "")
 
 DESC_SOLVER(dynawo_SolverSIM)

@@ -208,7 +208,7 @@ MACRO(COMPILE_PREASSEMBLED_MODEL
             CREATE_DDBDIR
         COMMAND
             # First echo_append prevents cmake from changing ( to "(" that is an invalid bash command
-            ${CMAKE_COMMAND} -E echo_append && (${CMAKE_COMMAND} -E copy ${MODEL_NAME}/${MODEL_NAME}${EXTERNAL_VARIABLES_EXTENSION} ${ddbdir}/ || ${CMAKE_COMMAND} -E echo_append This is not an error !) >> ${MODEL_NAME}.log 2>&1
+            ${CMAKE_COMMAND} -E echo_append && (${CMAKE_COMMAND} -E copy ${MODEL_NAME}${EXTERNAL_VARIABLES_EXTENSION} ${ddbdir}/ || ${CMAKE_COMMAND} -E echo_append This is not an error !) >> ${MODEL_NAME}.log 2>&1
         COMMENT "Install ${MODEL_NAME}${EXTERNAL_VARIABLES_EXTENSION} external variables description file"
         )
 

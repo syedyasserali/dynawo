@@ -22,7 +22,7 @@ TARGET_LINK_LIBRARIES(compileModelicaModel
     #"-rdynamic"
     )
 
-IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+IF ('${CMAKE_CXX_COMPILER_ID}' STREQUAL 'GNU')
   TARGET_LINK_LIBRARIES(compileModelicaModel "-lrt")
 ENDIF()
 
