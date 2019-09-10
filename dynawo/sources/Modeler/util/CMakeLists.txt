@@ -24,15 +24,8 @@ TARGET_LINK_LIBRARIES(dumpModel
     )
 
 IF(APPLE)
-    TARGET_LINK_LIBRARIES(dumpModel "-force_load" dynawo_Util)
     # Additional step to make shared library work on macOS; see https://gist.github.com/robertmaynard/5750737
     SET_TARGET_PROPERTIES(dumpModel PROPERTIES INSTALL_RPATH "@loader_path/../lib")
-ELSEIF(NOT MSVC)
-    TARGET_LINK_LIBRARIES(dumpModel "-Wl,--whole-archive" dynawo_Util "-Wl,--no-whole-archive")
-ENDIF()
-
-IF ('${CMAKE_CXX_COMPILER_ID}' STREQUAL 'GNU')
-  TARGET_LINK_LIBRARIES(dumpModel "-lrt")
 ENDIF()
 
 INSTALL(TARGETS dumpModel EXPORT dynawo-targets DESTINATION ${sbindir})
@@ -54,16 +47,9 @@ TARGET_LINK_LIBRARIES(generate-preassembled
     #"-rdynamic"
     )
 
-IF ('${CMAKE_CXX_COMPILER_ID}' STREQUAL 'GNU')
-  TARGET_LINK_LIBRARIES(generate-preassembled "-lrt")
-ENDIF()
-
 IF(APPLE)
-    TARGET_LINK_LIBRARIES(generate-preassembled "-force_load" dynawo_Util)
     # Additional step to make shared library work on macOS; see https://gist.github.com/robertmaynard/5750737
     SET_TARGET_PROPERTIES(generate-preassembled PROPERTIES INSTALL_RPATH "@loader_path/../lib")
-ELSEIF(NOT MSVC)
-    TARGET_LINK_LIBRARIES(generate-preassembled "-Wl,--whole-archive" dynawo_Util "-Wl,--no-whole-archive")
 ENDIF()
 
 SET_TARGET_PROPERTIES(generate-preassembled PROPERTIES VERSION ${DYNAWO_VERSION_STRING})

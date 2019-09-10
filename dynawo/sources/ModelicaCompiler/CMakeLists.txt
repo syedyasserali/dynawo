@@ -22,16 +22,9 @@ TARGET_LINK_LIBRARIES(compileModelicaModel
     #"-rdynamic"
     )
 
-IF ('${CMAKE_CXX_COMPILER_ID}' STREQUAL 'GNU')
-  TARGET_LINK_LIBRARIES(compileModelicaModel "-lrt")
-ENDIF()
-
 IF(APPLE)
-    TARGET_LINK_LIBRARIES(compileModelicaModel "-force_load" dynawo_Util)
     # Additional step to make shared library work on macOS; see https://gist.github.com/robertmaynard/5750737
     SET_TARGET_PROPERTIES(compileModelicaModel PROPERTIES INSTALL_RPATH "@loader_path/../lib")
-ELSEIF(NOT MSVC)
-    TARGET_LINK_LIBRARIES(compileModelicaModel "-Wl,--whole-archive" dynawo_Util "-Wl,--no-whole-archive")
 ENDIF()
 
 INSTALL(TARGETS compileModelicaModel EXPORT dynawo-targets DESTINATION ${sbindir})

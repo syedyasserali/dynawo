@@ -56,7 +56,16 @@ TARGET_INCLUDE_DIRECTORIES(dynawo_DataInterface
 
 TARGET_LINK_LIBRARIES(dynawo_DataInterface
     dynawo_ModelerCommon
-    iidm
+    iidm-ext-activeseason-xml
+    iidm-ext-busbarsectionposition-xml
+    iidm-ext-connectableposition-xml
+    iidm-ext-currentlimitsperseason-xml
+    iidm-ext-generatoractivepowercontrol-xml
+    iidm-ext-generatorentsoecategory-xml
+    iidm-ext-generatorstartup-xml
+    iidm-ext-hvdcangledroopactivepowercontrol-xml
+    iidm-ext-hvdcoperatoractivepowerrange-xml
+    iidm-ext-loaddetail-xml
     iidm-ext-standbyautomaton-xml
     )
 
