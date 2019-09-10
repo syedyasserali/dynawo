@@ -20,24 +20,13 @@ ADD_EXECUTABLE(dynawo ${DYNAWO_SOURCES})
 
 TARGET_LINK_LIBRARIES(dynawo
     dynawo_Simulation
-    ${libZIP_LIBRARY}
-    ${LibArchive_LIBRARIES}
-    ${ZLIB_LIBRARIES}
-    ${BZIP2_LIBRARIES}
     #pthread
     #"-rdynamic"
     )
 
-IF ('${CMAKE_CXX_COMPILER_ID}' STREQUAL 'GNU')
-  TARGET_LINK_LIBRARIES(dynawo "-lrt")
-ENDIF()
-
 IF(APPLE)
-    TARGET_LINK_LIBRARIES(dynawo "-force_load" dynawo_Util)
     # Additional step to make shared library work on macOS; see https://gist.github.com/robertmaynard/5750737
     SET_TARGET_PROPERTIES(dynawo PROPERTIES INSTALL_RPATH "@loader_path/../lib")
-ELSEIF(NOT MSVC)
-    TARGET_LINK_LIBRARIES(dynawo "-Wl,--whole-archive" dynawo_Util "-Wl,--no-whole-archive")
 ENDIF()
 
 SET_TARGET_PROPERTIES(dynawo PROPERTIES VERSION ${DYNAWO_VERSION_STRING})

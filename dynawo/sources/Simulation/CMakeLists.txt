@@ -36,21 +36,11 @@ TARGET_LINK_LIBRARIES(dynawo_Simulation
     dynawo_SimulationCommon
     dynawo_API_CSTR
     dynawo_API_JOB
-    dynawo_API_TL
     dynawo_SolverCommon
     dynawo_DataInterface
     ${libZIP_LIBRARY}
-    iidm-ext-activeseason-xml
-    iidm-ext-busbarsectionposition-xml
-    iidm-ext-connectableposition-xml
-    iidm-ext-currentlimitsperseason-xml
-    iidm-ext-generatoractivepowercontrol-xml
-    iidm-ext-generatorentsoecategory-xml
-    iidm-ext-generatorstartup-xml
-    iidm-ext-hvdcangledroopactivepowercontrol-xml
-    iidm-ext-hvdcoperatoractivepowerrange-xml
-    iidm-ext-loaddetail-xml
-    iidm-ext-standbyautomaton-xml
+    ${LibArchive_LIBRARIES}
+    ${ZLIB_LIBRARIES}
     )
 
 SET_TARGET_PROPERTIES(dynawo_Simulation PROPERTIES VERSION ${SIM_VERSION_STRING}

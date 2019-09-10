@@ -39,7 +39,6 @@ TARGET_INCLUDE_DIRECTORIES(dynawo_SolverCommon
     )
 
 TARGET_LINK_LIBRARIES(dynawo_SolverCommon
-    dynawo_Common
     dynawo_Util
     dynawo_API_TL
     ${SUNDIALS_NVECSERIAL_LIBRARY}

@@ -18,19 +18,8 @@ SET(DUMP_SOLVER_SOURCES
 ADD_EXECUTABLE(dumpSolver ${DUMP_SOLVER_SOURCES})
 
 TARGET_LINK_LIBRARIES(dumpSolver
-    XMLSAXFormatter${LibXML_LINK_SUFFIX}
     dynawo_SolverCommon
     #pthread
     )
-
-IF ('${CMAKE_CXX_COMPILER_ID}' STREQUAL 'GNU')
-  TARGET_LINK_LIBRARIES(dumpSolver "-lrt")
-ENDIF()
-
-IF(APPLE)
-    TARGET_LINK_LIBRARIES(dumpSolver "-force_load" dynawo_Util)
-ELSEIF(NOT MSVC)
-    TARGET_LINK_LIBRARIES(dumpSolver "-Wl,--whole-archive" dynawo_Util "-Wl,--no-whole-archive")
-ENDIF()
 
 INSTALL(TARGETS dumpSolver EXPORT dynawo-targets DESTINATION ${sbindir})
