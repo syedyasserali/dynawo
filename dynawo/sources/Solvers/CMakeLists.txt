@@ -38,7 +38,10 @@ MACRO(DESC_SOLVER SOLVER_NAME)
         DEPENDS ${SOLVER_NAME} dumpSolver
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMAND
-            ${CMAKE_COMMAND} -E env "${envlibpath}" $<TARGET_FILE:dumpSolver> -m $<TARGET_FILE:${SOLVER_NAME}> -o ${SOLVER_NAME}.desc.xml
+            ${CMAKE_COMMAND} -E env
+                "${runtime_PATH}"
+                "${runtime_LD_LIBRARY_PATH}"
+                    $<TARGET_FILE:dumpSolver> -m $<TARGET_FILE:${SOLVER_NAME}> -o ${SOLVER_NAME}.desc.xml
         COMMENT "Generating ${SOLVER_NAME} description file"
         )
 

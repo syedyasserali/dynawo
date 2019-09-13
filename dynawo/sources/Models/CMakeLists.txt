@@ -163,7 +163,9 @@ MACRO(COMPILE_PREASSEMBLED_MODEL
             ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/buildChecker.py ${CMAKE_CURRENT_SOURCE_DIR}/${PREASSEMBLED_MODEL} > ${MODEL_NAME}.log 2>&1 ||
             (echo "*** [${MODEL_NAME}] Error : for more information see file ${CMAKE_CURRENT_BINARY_DIR}/${MODEL_NAME}.log" && exit -1)
         COMMAND
-            ${CMAKE_COMMAND} -E env "${envlibpath}"
+            ${CMAKE_COMMAND} -E env
+                "${runtime_PATH}"
+                "${runtime_LD_LIBRARY_PATH}"
                 "DYNAWO_INSTALL_DIR=${installdir}"
                 "DYNAWO_DDB_DIR=${ddbdir}"
                 "DYNAWO_SCRIPTS_DIR=${sbindir}"
@@ -182,7 +184,10 @@ MACRO(COMPILE_PREASSEMBLED_MODEL
         OUTPUT ${MODEL_NAME}${DESCRIPTION_XML_EXTENSION}
         DEPENDS ${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX}
         COMMAND
-            ${CMAKE_COMMAND} -E env "${envlibpath}" $<TARGET_FILE:dumpModel> -m ${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX} -o ${MODEL_NAME}${DESCRIPTION_XML_EXTENSION}
+            ${CMAKE_COMMAND} -E env
+                "${runtime_PATH}"
+                "${runtime_LD_LIBRARY_PATH}"
+                    $<TARGET_FILE:dumpModel> -m ${MODEL_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX} -o ${MODEL_NAME}${DESCRIPTION_XML_EXTENSION}
         COMMENT "Generating ${MODEL_NAME} description file"
         )
 
@@ -252,7 +257,10 @@ MACRO(COMPILE_CPP_MODEL
         OUTPUT ${CPP_MODEL}${DESCRIPTION_XML_EXTENSION}
         DEPENDS ${CPP_MODEL}
         COMMAND
-            ${CMAKE_COMMAND} -E env "${envlibpath}" $<TARGET_FILE:dumpModel> -m $<TARGET_FILE:${CPP_MODEL}> -o ${CPP_MODEL}${DESCRIPTION_XML_EXTENSION}
+            ${CMAKE_COMMAND} -E env
+                "${runtime_PATH}"
+                "${runtime_LD_LIBRARY_PATH}"
+                    $<TARGET_FILE:dumpModel> -m $<TARGET_FILE:${CPP_MODEL}> -o ${CPP_MODEL}${DESCRIPTION_XML_EXTENSION}
         COMMENT "Building ${CPP_MODEL} description file"
         )
 
