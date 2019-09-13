@@ -16,6 +16,7 @@ SET(MODELICA_SOURCES
     ModelicaStrings.c
     ModelicaIO.c
     ModelicaMatIO.c
+    snprintf.c
     ModelicaStandardTables.c
     ModelicaStandardTablesUsertab.c
     )
@@ -37,7 +38,7 @@ SET(MODELICA_INCLUDE_HEADERS
 #win32_dirent.c
 #win32_dirent.h
 
-SET_SOURCE_FILES_PROPERTIES(${MODELICA_SOURCES} PROPERTIES LANGUAGE CXX)
+#SET_SOURCE_FILES_PROPERTIES(${MODELICA_SOURCES} PROPERTIES LANGUAGE CXX)
 
 ADD_LIBRARY(Modelica_externalC ${LIBRARY_TYPE} ${MODELICA_SOURCES})
 

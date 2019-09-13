@@ -286,7 +286,7 @@ ADD_CUSTOM_TARGET(CREATE_DDBDIR
     )
 
 IF(MSVC)
-    SET(envlibpath "PATH=${ADEPT_HOME}/bin;${Boost_LIBRARY_DIR_DEBUG};${Boost_LIBRARY_DIR_RELEASE};${dlfcn-win32_INCLUDE_DIRS}/../bin;${INSTALL_OPENMODELICA}/bin;${SUITESPARSE_HOME}/bin;${SUNDIALS_HOME}/lib;${XercesC_INCLUDE_DIRS}/../bin;${LibIIDM_BIN_DIR};${LibXML_SAX_FORMATTER_BIN_DIR};${libdir};$ENV{PATH}")
+    SET(runtime_PATH "PATH=${ADEPT_HOME}/bin;${Boost_LIBRARY_DIR_DEBUG};${Boost_LIBRARY_DIR_RELEASE};${dlfcn-win32_INCLUDE_DIRS}/../bin;${INSTALL_OPENMODELICA}/bin;${SUITESPARSE_HOME}/bin;${SUNDIALS_HOME}/lib;${XercesC_INCLUDE_DIRS}/../bin;${LibIIDM_BIN_DIR};${LibXML_BIN_DIR};${libdir};$ENV{PATH}")
 
 ELSEIF(APPLE)
     SET(CMAKE_MACOSX_RPATH True)
@@ -303,6 +303,11 @@ ELSEIF(APPLE)
     # add the automatically determined parts of the RPATH
     # which point to directories outside the build tree to the install RPATH
     SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH True)
+
+ELSE()   # Linux
+    SET(runtime_LD_LIBRARY_PATH "LD_LIBRARY_PATH=${ADEPT_HOME}/lib:${Boost_LIBRARY_DIR_DEBUG}:${Boost_LIBRARY_DIR_RELEASE}:${SUITESPARSE_HOME}/lib:${SUNDIALS_HOME}/lib64:${XercesC_INCLUDE_DIRS}/../lib:${LibIIDM_LIB_DIR}:${LibXML_LIB_DIR}:${libdir}:$ENV{LD_LIBRARY_PATH}")
+    SET(runtime_PATH "PATH=${INSTALL_OPENMODELICA}/bin:$ENV{PATH}")
+
 ENDIF()
 
 INCLUDE(../cpplint/cpplint.cmake)
