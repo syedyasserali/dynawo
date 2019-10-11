@@ -1351,7 +1351,7 @@ ModelTwoWindingsTransformer::evalZ(const double& t) {
               case CLOSED_3:
                 throw DYNError(Error::MODELER, NoThirdSide, id_);
       }
-      setConnectionState(static_cast<State>(z_[0]));
+      setConnectionState(static_cast<State>(static_cast<int>(z_[0])));
     }
   }
 
