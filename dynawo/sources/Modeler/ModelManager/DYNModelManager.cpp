@@ -1250,12 +1250,17 @@ ModelManager::evalCalculatedVarI(int iCalculatedVar, double* y, double* yp) {
 
 void
 ModelManager::evalJCalculatedVarI(int iCalculatedVar, double* y, double* yp, std::vector<double>& res) {
+#if _ADEPT_
   modelModelica()->evalJCalculatedVarI(iCalculatedVar, y, yp, res);
+#else
+  // Assert when Adept wasn't used
+  assert(0 && "evalJCalculatedVarI : Adept not used");
+#endif
 }
 
 vector<int>
-ModelManager::getDefJCalculatedVarI(int iCalculatedVar) {
-  return modelModelica()->getDefJCalculatedVarI(iCalculatedVar);
+ModelManager::getDefJCalculatedVarI(int /*iCalculatedVar*/) {
+  return vector<int> ();
 }
 
 void

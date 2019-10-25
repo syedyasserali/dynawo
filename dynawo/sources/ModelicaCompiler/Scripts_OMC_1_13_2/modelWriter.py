@@ -721,26 +721,15 @@ class ModelWriter(ModelWriterBase):
     # Add the body of evalJCalculatedVarI in the cpp file
     # @param self : object pointer
     # @return
-    def fill_evalJCalculatedVarI(self):
+    def fill_evalCalculatedVarIAdept(self):
         self.addEmptyLine()
-        self.addLine("void Model" + self.className + "::evalJCalculatedVarI(int iCalculatedVar, double* y, double* yp, std::vector<double> & res)\n")
+        self.addLine("#ifdef _ADEPT_\n")
+        self.addLine("adept::adouble Model" + self.className + "::evalCalculatedVarIAdept(int iCalculatedVar)\n")
         self.addLine("{\n")
 
-        self.addBody(self.builder.get_list_for_evaljcalculatedvari())
+        self.addBody(self.builder.get_list_for_evalcalculatedvariadept())
         self.addLine("}\n")
-
-
-    ##
-    # Add the body of getDefJCalculatedVarI in the cpp file
-    # @param self : object pointer
-    # @return
-    def fill_getDefJCalculatedVarI(self):
-        self.addEmptyLine()
-        self.addLine("std::vector<int> Model" + self.className + "::getDefJCalculatedVarI(int iCalculatedVar)\n")
-        self.addLine("{\n")
-
-        self.addBody(self.builder.get_list_for_getdefjcalculatedvari())
-        self.addLine("}\n")
+        self.addLine("#endif\n")
 
     ##
     # Define the header file

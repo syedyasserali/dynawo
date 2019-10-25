@@ -227,24 +227,15 @@ class ModelModelica {
    */
   virtual double evalCalculatedVarI(int iCalculatedVar, double* y, double* yp) = 0;
 
+#ifdef _ADEPT_
   /**
-   * @brief evaluate the jacobian associated to a calculated variable
+   * @brief evaluate the value of a calculated variable with ADEPT library
    *
    * @param iCalculatedVar index of the calculated variable
-   * @param y value of the variable used to calculate the jacobian
-   * @param yp value of the derivatives of variable used to calculate the jacobian
-   * @param res values of the jacobian
+   * @return value of the calculated variable
    */
-  virtual void evalJCalculatedVarI(int iCalculatedVar, double* y, double* yp, std::vector<double> & res) = 0;
-
-  /**
-   * @brief get the index of variables used to define the jacobian associated to a calculated variable
-   *
-   * @param iCalculatedVar index of the calculated variable
-   *
-   * @return index of variables used to define the jacobian
-   */
-  virtual std::vector<int> getDefJCalculatedVarI(int iCalculatedVar) = 0;
+  virtual adept::adouble evalCalculatedVarIAdept(int iCalculatedVar) = 0;
+#endif
 };
 }  // namespace DYN
 

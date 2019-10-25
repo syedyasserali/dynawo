@@ -274,10 +274,6 @@ class Factory:
         self.list_for_evalcalculatedvars = []
         ## List of equations to add in evalCalculatedVarI
         self.list_for_evalcalculatedvari = []
-        ## List of equations to add in evalJCalculatedVarI
-        self.list_for_evaljcalculatedvari = []
-        ## List of equations to add in getDefJCalculatedVarI
-        self.list_for_getdefjcalculatedvari = []
 
         ## List of variables definitions for generic header
         self.list_for_definition_header = []
@@ -2645,34 +2641,19 @@ class Factory:
         return self.list_for_evalcalculatedvari
 
     ##
-    # prepare the lines that constitues the body for evalJCalculatedVarI
+    # prepare the lines that constitues the body for evalCalculatedVarIAdept
     # @param self : object pointer
     # @return
-    def prepare_for_evaljcalculatedvar(self):
-        self.list_for_evaljcalculatedvari.append("  // not needed\n")
+    def prepare_for_evalcalculatedvariadept(self):
+        self.list_for_evalcalculatedvariadept.append("  // not needed\n")
 
 
     ##
-    # return the list of lines that constitues the body of evalJCalculatedVarI
+    # return the list of lines that constitues the body of evalCalculatedVarIAdept
     # @param self : object pointer
     # @return list of lines
-    def get_list_for_evaljcalculatedvari(self):
-        return self.list_for_evaljcalculatedvari
-
-    ##
-    # prepare the lines that constitues the body for getDefJCalculatedVarI
-    # @param self : object pointer
-    # @return
-    def prepare_for_getdefjcalculatedvari(self):
-        self.list_for_getdefjcalculatedvari.append("  return std::vector<int>();\n")
-
-
-    ##
-    # return the list of lines that constitues the body of getDefJCalculatedVarI
-    # @param self : object pointer
-    # @return list of lines
-    def get_list_for_getdefjcalculatedvari(self):
-        return self.list_for_getdefjcalculatedvari
+    def get_list_for_evalcalculatedvariadept(self):
+        return self.list_for_evalcalculatedvariadept
 
     ##
     # returns the lines that constitues the defines for literal constants
@@ -2839,5 +2820,5 @@ class Factory:
         self.prepare_for_literalconstants()
         self.prepare_for_evalcalculatedvars()
         self.prepare_for_evalcalculatedvari()
-        self.prepare_for_evaljcalculatedvar()
+        self.prepare_for_evalcalculatedvariadept()
         self.prepare_for_getdefjcalculatedvari()
