@@ -806,10 +806,14 @@ class Factory:
                 eq_maker = EqMaker(f)
                 list_eq_maker_16dae_c.append( eq_maker )
 
+        # dictionary that stores the number of equations that depends on a specific variable
+        variable_to_equation_dependencies = {}
+
         # Find, for each function of the main *.c file :
         # - the variable it evaluates
         # - the vars on which it depends to evaluate this variable
         map_dep = self.reader.get_map_dep_vars_for_func()
+        variable_depending_on_time = []
         for eq_mak in list_eq_maker_16dae_c:
             eq_mak_num_omc = eq_mak.get_num_omc()
             name_var_eval = None
@@ -833,12 +837,31 @@ class Factory:
                     list_depend.extend( map_dep[name_var_eval] ) # We get the other vars (from *._info.xml)
 
                 eq_mak.set_depend_vars(list_depend)
+                if "time" in list_depend:
+                    variable_depending_on_time.append(eq_mak.get_evaluated_var())
+                for var_name in list_depend:
+                    if var_name == "time": continue
+                    if self.reader.is_residual_vars(var_name) : continue
+                    if len(filter(lambda x: x.get_name() == var_name, self.list_all_vars_discr)) > 0: continue
+                    if len(filter(lambda x: x.get_name() == var_name, self.list_vars_int)) > 0: continue
+                    if "$whenCondition" in var_name : continue
+                    if not var_name in variable_to_equation_dependencies:
+                        variable_to_equation_dependencies[var_name] = []
+                    variable_to_equation_dependencies[var_name].append(eq_mak.get_num_omc())
+
 
         # Build an equation for each function in the dae *.c file
         for eq_mak in list_eq_maker_16dae_c:
             eq_mak.prepare_body_for_equation()
             self.list_all_equations.append( eq_mak.create_equation() )
             self.list_eq_maker_16dae.append(eq_mak)
+
+        print "BUBU START"
+        for eq_mak in list_eq_maker_16dae_c:
+            var_name = eq_mak.get_evaluated_var()
+            if var_name in variable_to_equation_dependencies and len( variable_to_equation_dependencies[var_name]) == 1:
+                print "BUBU OK? " + var_name + " " + eq_mak.get_num_omc()
+
     ##
     # collect the equations defining the model and assigns them an unique id
     # @param self : object pointer
