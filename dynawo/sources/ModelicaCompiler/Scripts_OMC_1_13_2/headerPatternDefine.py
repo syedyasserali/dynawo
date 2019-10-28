@@ -73,7 +73,7 @@ class HeaderPatternDefine:
 
 #ifdef _ADEPT_
     void evalFAdept(const std::vector<adept::adouble> &y, const std::vector<adept::adouble> &yp, std::vector<adept::adouble> &F);
-    adept::adouble evalCalculatedVarIAdept(int iCalculatedVar);
+    adept::adouble evalCalculatedVarIAdept(int iCalculatedVar, const std::vector<adept::adouble> &y, const std::vector<adept::adouble> &yp);
 #endif
 
     void checkDataCoherence ();
@@ -154,7 +154,7 @@ namespace DYN {
     double evalCalculatedVarI(int iCalculatedVar, double* y, double* yp);
 #ifdef _ADEPT_
     void evalFAdept( const std::vector<adept::adouble> &y, const std::vector<adept::adouble> &yp, std::vector<adept::adouble> &F);
-    adept::adouble evalCalculatedVarIAdept(int iCalculatedVar);
+    adept::adouble evalCalculatedVarIAdept(int iCalculatedVar, const std::vector<adept::adouble> &y, const std::vector<adept::adouble> &yp);
 #endif
 
     void checkDataCoherence ();

@@ -99,6 +99,7 @@ if __name__ == '__main__':
         reader_init.read_functions_header()      # Read *_functions.h
         reader_init.read_functions_c_file()       # Read *_functions.c
         reader_init.read_literals_h_file()        # Read *_literals.h
+        reader_init.assign_variables_indexes()
         reader_init.remove_fictitious_fequation()
 
     #################################
@@ -204,6 +205,7 @@ if __name__ == '__main__':
     reader.read_functions_header()      # Read *_functions.h
     reader.read_functions_c_file()       # Read *_functions.c
     reader.read_literals_h_file()        # Read *_literals.h
+    reader.assign_variables_indexes()
     reader.remove_fictitious_fequation()
 
     #################################

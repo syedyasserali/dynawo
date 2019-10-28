@@ -1249,9 +1249,9 @@ ModelManager::evalCalculatedVarI(int iCalculatedVar, double* y, double* yp) {
 }
 
 void
-ModelManager::evalJCalculatedVarI(int iCalculatedVar, double* y, double* yp, std::vector<double>& res) {
+ModelManager::evalJCalculatedVarI(int /*iCalculatedVar*/, double* /*y*/, double* /*yp*/, std::vector<double>& /*res*/) {
 #if _ADEPT_
-  modelModelica()->evalJCalculatedVarI(iCalculatedVar, y, yp, res);
+  // modelModelica()->evalJCalculatedVarI(iCalculatedVar, y, yp, res);
 #else
   // Assert when Adept wasn't used
   assert(0 && "evalJCalculatedVarI : Adept not used");

@@ -234,7 +234,7 @@ class ModelModelica {
    * @param iCalculatedVar index of the calculated variable
    * @return value of the calculated variable
    */
-  virtual adept::adouble evalCalculatedVarIAdept(int iCalculatedVar) = 0;
+  virtual adept::adouble evalCalculatedVarIAdept(int iCalculatedVar, const std::vector<adept::adouble> &y, const std::vector<adept::adouble> &yp) = 0;
 #endif
 };
 }  // namespace DYN

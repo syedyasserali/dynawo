@@ -724,7 +724,7 @@ class ModelWriter(ModelWriterBase):
     def fill_evalCalculatedVarIAdept(self):
         self.addEmptyLine()
         self.addLine("#ifdef _ADEPT_\n")
-        self.addLine("adept::adouble Model" + self.className + "::evalCalculatedVarIAdept(int iCalculatedVar)\n")
+        self.addLine("adept::adouble Model" + self.className + "::evalCalculatedVarIAdept(int iCalculatedVar, const std::vector<adept::adouble> &x, const std::vector<adept::adouble> &xd)\n")
         self.addLine("{\n")
 
         self.addBody(self.builder.get_list_for_evalcalculatedvariadept())

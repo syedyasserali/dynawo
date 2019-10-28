@@ -274,6 +274,8 @@ class Factory:
         self.list_for_evalcalculatedvars = []
         ## List of equations to add in evalCalculatedVarI
         self.list_for_evalcalculatedvari = []
+        ## List of equations to add in evalCalculatedVarIAdept
+        self.list_for_evalcalculatedvariadept = []
 
         ## List of variables definitions for generic header
         self.list_for_definition_header = []
@@ -788,19 +790,10 @@ class Factory:
         # List of equations from main *.c file
         list_eq_maker_16dae_c = []
 
-        # index of functions calling the resolution of LS or NLS in main *.c file
-        list_num_func_to_remove = []
-
-        # Removing functions involving linear or non-linear
-        # systems in the list of functions read in the main *.c file
-        # These functions are covered later.
-        list_num_func_to_remove = self.reader.linear_eq_nums + self.reader.non_linear_eq_nums
-
         # Build the eqMaker for functions of the dae *.c file
         for f in self.reader.list_func_16dae_c:
-            if f.get_num_omc() not in list_num_func_to_remove:
-                eq_maker = EqMaker(f)
-                list_eq_maker_16dae_c.append( eq_maker )
+            eq_maker = EqMaker(f)
+            list_eq_maker_16dae_c.append( eq_maker )
 
         # dictionary that stores the number of equations that depends on a specific variable
         variable_to_equation_dependencies = {}
@@ -833,18 +826,33 @@ class Factory:
                     list_depend.extend( map_dep[name_var_eval] ) # We get the other vars (from *._info.xml)
 
                 eq_mak.set_depend_vars(list_depend)
-                if "time" in list_depend:
-                    variable_depending_on_time.append(eq_mak.get_evaluated_var())
+                doit = True
                 for var_name in list_depend:
-                    if var_name == "time": continue
-                    if self.reader.is_residual_vars(var_name) : continue
-                    if len(filter(lambda x: x.get_name() == var_name, self.list_all_vars_discr)) > 0: continue
-                    if len(filter(lambda x: x.get_name() == var_name, self.list_vars_int)) > 0: continue
-                    if "$whenCondition" in var_name : continue
-                    if not var_name in variable_to_equation_dependencies:
-                        variable_to_equation_dependencies[var_name] = []
-                    variable_to_equation_dependencies[var_name].append(eq_mak.get_num_omc())
+                    if "der(" in var_name or "$DER" in var_name:
+                        doit = False
+                if doit:
+                    if "time" in list_depend:
+                        variable_depending_on_time.append(eq_mak.get_evaluated_var())
+                    for var_name in list_depend:
+                        if var_name == "time": continue
+                        if self.reader.is_residual_vars(var_name) : continue
+                        if len(filter(lambda x: x.get_name() == var_name, self.list_all_vars_discr)) > 0: continue
+                        if len(filter(lambda x: x.get_name() == var_name, self.list_vars_int)) > 0: continue
+                        if "$whenCondition" in var_name : continue
+                        if not var_name in variable_to_equation_dependencies:
+                            variable_to_equation_dependencies[var_name] = []
+                        variable_to_equation_dependencies[var_name].append(eq_mak.get_num_omc())
 
+
+        print "BUBU START"
+        eq_mak_to_remove = []
+        for eq_mak in list_eq_maker_16dae_c:
+            var_name = eq_mak.get_evaluated_var()
+            if var_name in variable_to_equation_dependencies and len( variable_to_equation_dependencies[var_name]) == 1:
+                print "BUBU OK? " + var_name + " " + eq_mak.get_num_omc()
+                eq_mak_to_remove.append(eq_mak)
+        for eq_mak in eq_mak_to_remove:
+            list_eq_maker_16dae_c.remove(eq_mak)
 
         # Build an equation for each function in the dae *.c file
         for eq_mak in list_eq_maker_16dae_c:
@@ -852,11 +860,6 @@ class Factory:
             self.list_all_equations.append( eq_mak.create_equation() )
             self.list_eq_maker_16dae.append(eq_mak)
 
-        print "BUBU START"
-        for eq_mak in list_eq_maker_16dae_c:
-            var_name = eq_mak.get_evaluated_var()
-            if var_name in variable_to_equation_dependencies and len( variable_to_equation_dependencies[var_name]) == 1:
-                print "BUBU OK? " + var_name + " " + eq_mak.get_num_omc()
 
     ##
     # collect the equations defining the model and assigns them an unique id
@@ -2645,7 +2648,51 @@ class Factory:
     # @param self : object pointer
     # @return
     def prepare_for_evalcalculatedvariadept(self):
-        self.list_for_evalcalculatedvariadept.append("  // not needed\n")
+        list_omc_functions = self.reader.list_omc_functions
+        self.list_for_evalcalculatedvariadept.append("  /*\n")
+        for v in self.list_vars_syst + self.list_vars_der:
+            if v.get_name() in self.reader.auxiliary_vars_counted_as_variables : continue
+            self.list_for_evalcalculatedvariadept.append( "    %s : %s\n" % (to_compile_name(v.get_name()), v.get_dynawo_name()) )
+        self.list_for_evalcalculatedvariadept.append("\n")
+
+        self.list_for_evalcalculatedvariadept.append("  */\n")
+        trans = Transpose(self.reader.auxiliary_vars_to_address_map, self.reader.derivative_residual_vars + self.reader.assign_residual_vars)
+
+        num_ternary = 0
+        index = 0
+        for var in self.list_calculated_vars:
+            body = None
+            if var in self.list_complex_const_vars:
+                if var.get_init_by_param ():
+                    body = var.get_start_text()
+                elif var.get_init_by_param_in_06inz():
+                    body = var.get_start_text_06inz()
+            else:
+                body = self.dic_calculated_vars_values[var.get_name()]
+            assert (body != None)
+            trans.set_txt_list(body)
+            body_translated = trans.translate()
+
+            # transformation of ternary operators:
+            body_to_transform = False
+            for line in body_translated:
+                if "?" in line:
+                    body_to_transform = True
+                    break
+
+            if body_to_transform:
+                body_translated = transform_ternary_operator(body_translated,num_ternary)
+                num_ternary += 1
+
+            # convert native boolean variables
+            convert_booleans_body ([item.get_name() for item in self.list_all_bool_items], body_translated)
+
+            self.list_for_evalcalculatedvariadept.append("  if (iCalculatedVar == " + str(index)+")  /* "+ var.get_name() + " */\n")
+            self.list_for_evalcalculatedvariadept.extend(body_translated)
+            self.list_for_evalcalculatedvariadept.append("    return 0.;\n")
+            index += 1
+
+            self.list_for_evalcalculatedvariadept.append("\n\n")
 
 
     ##
@@ -2821,4 +2868,3 @@ class Factory:
         self.prepare_for_evalcalculatedvars()
         self.prepare_for_evalcalculatedvari()
         self.prepare_for_evalcalculatedvariadept()
-        self.prepare_for_getdefjcalculatedvari()

@@ -135,12 +135,6 @@ class ReaderOMC:
         ## Association between the tag of the equation (when,assign,...) and the index of the function/equation
         self.map_tag_num_eq ={}
 
-        ## List of number associated to linear equation
-        self.linear_eq_nums = []
-
-        ## List of number associated to non linear equation
-        self.non_linear_eq_nums = []
-
         ## List of variables defined by initial equation
         self.initial_defined = []
 
@@ -364,15 +358,7 @@ class ReaderOMC:
                 if "display" in keys:
                     display = equation["display"]
 
-                # Retrieving numbers from linear equations
-                if display == "linear":
-                    self.linear_eq_nums.append(index)
-
                 self.map_tag_num_eq[index]=str(tag_eq)
-
-                # Retrieving numbers from nonlinear equations
-                if display == "non-linear":
-                    self.non_linear_eq_nums.append(index)
 
                 # Get map [calculated var] --> [Func num / Eq in .xml]
                 list_defined_vars=[]
@@ -1097,6 +1083,9 @@ class ReaderOMC:
                     var = var_list[0]
                 if "$cse" in name:
                     map_var_name_2_addresses[name]= "auxiliaryVars"
+                elif type == "derivativeVars" or "$DER" in name:
+                    map_var_name_2_addresses[name]= "derivativesVars"
+                    map_var_name_2_addresses[name.replace("$DER.","der(")+")"]= map_var_name_2_addresses[name]
                 elif re.search(r'stateVars \([0-9]+\)',type) or re.search(r'algVars \([0-9]+\)',type):
                     if not var.is_fixed():
                         map_var_name_2_addresses[name]= "realVars"
@@ -1104,9 +1093,6 @@ class ReaderOMC:
                         map_var_name_2_addresses[name]= "constVars"
                 elif type == "discreteAlgVars":
                     map_var_name_2_addresses[name]= "discreteVars"
-                elif type == "derivativeVars":
-                    map_var_name_2_addresses[name]= "derivativesVars"
-                    map_var_name_2_addresses[name.replace("$DER.","der(")+")"]= map_var_name_2_addresses[name]
                 elif type == "constVars":
                     map_var_name_2_addresses[name]= "SHOULD NOT BE USED"
                 elif type == "intAlgVars":
@@ -1150,7 +1136,9 @@ class ReaderOMC:
                     self.external_objects.append(ext)
                 test_param_address(name)
 
-        # Attribution of indexes done in a second time to make sure the order is the same as in defineVariables and defineParameters methods
+    def assign_variables_indexes(self):
+        self.detect_non_const_real_calculated_variables()
+        # Attribution of indexes done independently to make sure the order is the same as in defineVariables and defineParameters methods
         index_real_var = 0
         index_derivative_var = 0
         index_discrete_var = 0
@@ -1200,6 +1188,59 @@ class ReaderOMC:
         self.nb_discrete_vars = index_discrete_var
         self.nb_bool_vars = index_boolean_vars
         self.nb_integer_vars = index_integer_double
+
+    def detect_non_const_real_calculated_variables(self):
+        map_dep = self.get_map_dep_vars_for_func()
+        map_num_eq_vars_defined = self.get_map_num_eq_vars_defined()
+        variable_depending_on_time = []
+        for f in self.list_func_16dae_c:
+            f_num_omc = f.get_num_omc()
+            name_var_eval = None
+
+            # for Modelica reinit equations, the evaluated var scan does not always work
+            # a fallback is to look at the variable defined in this case
+            if f_num_omc in map_num_eq_vars_defined.keys():
+                if len(map_num_eq_vars_defined[f_num_omc]) > 1:
+                    error_exit("   Error: Found an equation (id: " + eq_mak_num_omc+") defining multiple variables. This is not supported in Dynawo.")
+                name_var_eval = map_num_eq_vars_defined[f_num_omc] [0]
+
+            if name_var_eval is not None and self.is_residual_vars(name_var_eval) and \
+                not self.is_der_residual_vars(name_var_eval) and not self.is_assign_residual_vars(name_var_eval):
+                continue
+
+            list_depend = [] # list of vars on which depends the function
+            if name_var_eval is not None:
+                list_depend.append(name_var_eval) # The / equation function depends on the var it evaluates
+                if name_var_eval in map_dep.keys():
+                    list_depend.extend( map_dep[name_var_eval] ) # We get the other vars (from *._info.xml)
+                doit = True
+                for var_name in list_depend:
+                    if "der(" in var_name or "$DER" in var_name:
+                        doit = False
+                if doit:
+                    if "time" in list_depend:
+                        variable_depending_on_time.append(name_var_eval)
+                    for var_name in list_depend:
+                        if var_name == "time": continue
+                        if self.reader.is_residual_vars(var_name) : continue
+                        if len(filter(lambda x: x.get_name() == var_name, self.list_all_vars_discr)) > 0: continue
+                        if len(filter(lambda x: x.get_name() == var_name, self.list_vars_int)) > 0: continue
+                        if "$whenCondition" in var_name : continue
+                        if not var_name in variable_to_equation_dependencies:
+                            variable_to_equation_dependencies[var_name] = []
+                        variable_to_equation_dependencies[var_name].append(eq_mak.get_num_omc())
+
+
+        print "BUBU START"
+        eq_mak_to_remove = []
+        for eq_mak in list_eq_maker_16dae_c:
+            var_name = eq_mak.get_evaluated_var()
+            if var_name in variable_to_equation_dependencies and len( variable_to_equation_dependencies[var_name]) == 1:
+                print "BUBU OK? " + var_name + " " + eq_mak.get_num_omc()
+                eq_mak_to_remove.append(eq_mak)
+        for eq_mak in eq_mak_to_remove:
+            list_eq_maker_16dae_c.remove(eq_mak)
+
 
     ##
     # Find the effective value of a constant real variable
