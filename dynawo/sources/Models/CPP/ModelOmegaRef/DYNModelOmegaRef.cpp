@@ -95,6 +95,7 @@ ModelOmegaRef::ModelOmegaRef() :
 Impl("omegaRef"),
 firstState_(true),
 nbGen_(0),
+nbCC_(0),
 nbOmega_(0) {
 }
 
