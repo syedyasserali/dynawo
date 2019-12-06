@@ -30,7 +30,6 @@
 #include <sunlinsol/sunlinsol_klu.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
-#include <sundials/sundials_sparse.h>
 #include <nvector/nvector_serial.h>
 
 #ifdef WITH_NICSLU

@@ -1,8 +1,8 @@
 diff --git a/include/ida/ida.h b/include/ida/ida.h
-index bdfa9ef..1ce3ce8 100644
+index 27c1d275..dab49906 100644
 --- a/include/ida/ida.h
 +++ b/include/ida/ida.h
-@@ -134,6 +134,7 @@ SUNDIALS_EXPORT int IDASetUserData(void *ida_mem, void *user_data);
+@@ -135,6 +135,7 @@ SUNDIALS_EXPORT int IDASetUserData(void *ida_mem, void *user_data);
  SUNDIALS_EXPORT int IDASetMaxOrd(void *ida_mem, int maxord);
  SUNDIALS_EXPORT int IDASetMaxNumSteps(void *ida_mem, long int mxsteps);
  SUNDIALS_EXPORT int IDASetInitStep(void *ida_mem, realtype hin);
@@ -11,7 +11,7 @@ index bdfa9ef..1ce3ce8 100644
  SUNDIALS_EXPORT int IDASetStopTime(void *ida_mem, realtype tstop);
  SUNDIALS_EXPORT int IDASetNonlinConvCoef(void *ida_mem, realtype epcon);
 diff --git a/include/kinsol/kinsol.h b/include/kinsol/kinsol.h
-index fa8a372..f5ac23b 100644
+index fa8a372a..f5ac23bb 100644
 --- a/include/kinsol/kinsol.h
 +++ b/include/kinsol/kinsol.h
 @@ -137,6 +137,8 @@ SUNDIALS_EXPORT int KINGetNumBacktrackOps(void *kinmem, long int *nbacktr);
@@ -24,10 +24,10 @@ index fa8a372..f5ac23b 100644
  /* Free function */
  SUNDIALS_EXPORT void KINFree(void **kinmem);
 diff --git a/src/ida/ida.c b/src/ida/ida.c
-index c950af8..5e966ce 100644
+index 7a47dd3d..a53725a2 100644
 --- a/src/ida/ida.c
 +++ b/src/ida/ida.c
-@@ -298,6 +298,7 @@ void *IDACreate(void)
+@@ -299,6 +299,7 @@ void *IDACreate(void)
    IDA_mem->ida_maxord      = MAXORD_DEFAULT;
    IDA_mem->ida_mxstep      = MXSTEP_DEFAULT;
    IDA_mem->ida_hmax_inv    = HMAX_INV_DEFAULT;
@@ -35,7 +35,7 @@ index c950af8..5e966ce 100644
    IDA_mem->ida_hin         = ZERO;
    IDA_mem->ida_epcon       = EPCON;
    IDA_mem->ida_maxnef      = MXNEF;
-@@ -2551,6 +2552,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
+@@ -2571,6 +2572,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
           Note that if nflag=IDA_CONSTR_RECVR then rr was already set in IDANls */
        if (nflag != IDA_CONSTR_RECVR) IDA_mem->ida_rr = QUARTER;
        IDA_mem->ida_hh *= IDA_mem->ida_rr;
@@ -43,7 +43,7 @@ index c950af8..5e966ce 100644
  
        /* Test if there were too many convergence failures */
        if (*ncfPtr < IDA_mem->ida_maxncf)  return(PREDICT_AGAIN);
-@@ -2579,6 +2581,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
+@@ -2599,6 +2601,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
        IDA_mem->ida_rr = PT9 * SUNRpowerR( TWO * err_knew + PT0001, -ONE/(IDA_mem->ida_kk + 1) );
        IDA_mem->ida_rr = SUNMAX(QUARTER, SUNMIN(PT9,IDA_mem->ida_rr));
        IDA_mem->ida_hh *= IDA_mem->ida_rr;
@@ -51,7 +51,7 @@ index c950af8..5e966ce 100644
        return(PREDICT_AGAIN);
  
      } else if (*nefPtr == 2) {
-@@ -2589,6 +2592,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
+@@ -2609,6 +2612,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
        IDA_mem->ida_kk = IDA_mem->ida_knew;
        IDA_mem->ida_rr = QUARTER;
        IDA_mem->ida_hh *= IDA_mem->ida_rr;
@@ -59,7 +59,7 @@ index c950af8..5e966ce 100644
        return(PREDICT_AGAIN);
  
      } else if (*nefPtr < IDA_mem->ida_maxnef) {
-@@ -2598,6 +2602,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
+@@ -2618,6 +2622,7 @@ static int IDAHandleNFlag(IDAMem IDA_mem, int nflag, realtype err_k, realtype er
        IDA_mem->ida_kk = 1;
        IDA_mem->ida_rr = QUARTER;
        IDA_mem->ida_hh *= IDA_mem->ida_rr;
@@ -67,7 +67,7 @@ index c950af8..5e966ce 100644
        return(PREDICT_AGAIN);
  
      } else {
-@@ -2963,8 +2968,12 @@ static int IDARcheck2(IDAMem IDA_mem)
+@@ -2983,8 +2988,12 @@ static int IDARcheck2(IDAMem IDA_mem)
    if (IDA_mem->ida_irfnd == 0) return(IDA_SUCCESS);
  
    (void) IDAGetSolution(IDA_mem, IDA_mem->ida_tlo, IDA_mem->ida_yy, IDA_mem->ida_yp);
@@ -77,12 +77,12 @@ index c950af8..5e966ce 100644
 +//                             IDA_mem->ida_glo, IDA_mem->ida_user_data);
 +// use of temporary variable (trout,grout) to detect sign change of g
 +  IDA_mem->ida_trout = IDA_mem->ida_tlo;
-+  retval = IDA_mem->ida_gfun (IDA_mem->ida_trout, IDA_mem->ida_yy, IDA_mem->ida_yp,
-+                              IDA_mem->ida_grout, IDA_mem->ida_user_data);
++  retval = IDA_mem->ida_gfun (IDA_mem->ida_trout, IDA_mem->ida_yy, IDA_mem->ida_yp, 
++  														  IDA_mem->ida_grout, IDA_mem->ida_user_data);
    IDA_mem->ida_nge++;
    if (retval != 0) return(IDA_RTFUNC_FAIL);
  
-@@ -2973,7 +2982,7 @@ static int IDARcheck2(IDAMem IDA_mem)
+@@ -2993,7 +3002,7 @@ static int IDARcheck2(IDAMem IDA_mem)
      IDA_mem->ida_iroots[i] = 0;
    for (i = 0; i < IDA_mem->ida_nrtfn; i++) {
      if (!IDA_mem->ida_gactive[i]) continue;
@@ -91,7 +91,7 @@ index c950af8..5e966ce 100644
        zroot = SUNTRUE;
        IDA_mem->ida_iroots[i] = 1;
      }
-@@ -3005,6 +3014,10 @@ static int IDARcheck2(IDAMem IDA_mem)
+@@ -3025,6 +3034,10 @@ static int IDARcheck2(IDAMem IDA_mem)
        if (IDA_mem->ida_iroots[i] == 1) return(CLOSERT);
        zroot = SUNTRUE;
        IDA_mem->ida_iroots[i] = 1;
@@ -103,7 +103,7 @@ index c950af8..5e966ce 100644
        if (IDA_mem->ida_iroots[i] == 1)
          IDA_mem->ida_glo[i] = IDA_mem->ida_ghi[i];
 diff --git a/src/ida/ida_impl.h b/src/ida/ida_impl.h
-index 93b1458..10bd182 100644
+index 050ec31d..c0b4abfd 100644
 --- a/src/ida/ida_impl.h
 +++ b/src/ida/ida_impl.h
 @@ -176,6 +176,7 @@ typedef struct IDAMemRec {
@@ -114,7 +114,7 @@ index 93b1458..10bd182 100644
  
    /* Counters */
  
-@@ -509,6 +510,7 @@ int idaNlsInit(IDAMem IDA_mem);
+@@ -510,6 +511,7 @@ int idaNlsInit(IDAMem IDA_mem);
  #define MSG_NEG_MAXORD     "maxord <= 0 illegal."
  #define MSG_BAD_MAXORD     "Illegal attempt to increase maximum order."
  #define MSG_NEG_HMAX       "hmax < 0 illegal."
@@ -123,7 +123,7 @@ index 93b1458..10bd182 100644
  #define MSG_BAD_CONSTR     "Illegal values in constraints vector."
  #define MSG_BAD_EPICCON    "epiccon <= 0.0 illegal."
 diff --git a/src/ida/ida_io.c b/src/ida/ida_io.c
-index 5c1868f..0186b4b 100644
+index eb709075..364ee510 100644
 --- a/src/ida/ida_io.c
 +++ b/src/ida/ida_io.c
 @@ -167,6 +167,32 @@ int IDASetInitStep(void *ida_mem, realtype hin)
@@ -133,19 +133,19 @@ index 5c1868f..0186b4b 100644
 +int IDASetMinStep(void *ida_mem, realtype hmin)
 +{
 +  IDAMem IDA_mem;
-+
++  
 +  if (ida_mem==NULL){
 +    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASetMinStep", MSG_NO_MEM);
 +    return(IDA_MEM_NULL);
 +  }
-+
++  
 +  IDA_mem = (IDAMem) ida_mem;
-+
++  
 +  if (hmin < 0) {
 +    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDASetMinStep", MSG_NEG_HMIN);
 +    return(IDA_ILL_INPUT);
 +  }
-+
++  
 +  if( hmin == ZERO ){
 +    IDA_mem->ida_hmin = ZERO;
 +    return (IDA_SUCCESS);
@@ -154,13 +154,13 @@ index 5c1868f..0186b4b 100644
 +  return (IDA_SUCCESS);
 +}
 +
-+/*----------------------------END IDASetMinStep-------------------------------------*/
++/*-----------------------------------------------------------------*/
 +
  int IDASetMaxStep(void *ida_mem, realtype hmax)
  {
    IDAMem IDA_mem;
 diff --git a/src/kinsol/kinsol_io.c b/src/kinsol/kinsol_io.c
-index 5a5138f..31468ae 100644
+index 5a5138fb..31468ae0 100644
 --- a/src/kinsol/kinsol_io.c
 +++ b/src/kinsol/kinsol_io.c
 @@ -835,6 +835,8 @@ int KINSetSysFunc(void *kinmem, KINSysFn func)
@@ -213,10 +213,10 @@ index 5a5138f..31468ae 100644
 +  return(KIN_SUCCESS);
 +}
 diff --git a/src/kinsol/kinsol_ls.c b/src/kinsol/kinsol_ls.c
-index 8f5f611..c337984 100644
+index d075c90f..444349f5 100644
 --- a/src/kinsol/kinsol_ls.c
 +++ b/src/kinsol/kinsol_ls.c
-@@ -224,6 +224,7 @@ int KINSetJacFn(void *kinmem, KINLsJacFn jac)
+@@ -231,6 +231,7 @@ int KINSetJacFn(void *kinmem, KINLsJacFn jac)
      kinls_mem->jac    = kinLsDQJac;
      kinls_mem->J_data = kin_mem;
    }

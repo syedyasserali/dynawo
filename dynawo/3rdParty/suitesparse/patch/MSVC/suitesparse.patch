@@ -1,6 +1,7 @@
-diff -urpN SuiteSparse/CMakeLists.txt SuiteSparse.patch/CMakeLists.txt
---- SuiteSparse/CMakeLists.txt	2019-10-08 13:37:10.745154612 +0200
-+++ SuiteSparse.patch/CMakeLists.txt	2019-10-09 10:37:06.523791858 +0200
+diff --git SuiteSparse/CMakeLists.txt SuiteSparse.patch/CMakeLists.txt
+index ae4068d2..15b2c8ae 100644
+--- SuiteSparse/CMakeLists.txt
++++ SuiteSparse.patch/CMakeLists.txt
 @@ -1,8 +1,22 @@
  cmake_minimum_required(VERSION 3.4.3 FATAL_ERROR)
  
@@ -24,9 +25,10 @@ diff -urpN SuiteSparse/CMakeLists.txt SuiteSparse.patch/CMakeLists.txt
  
  set(INCLUDE_INSTALL_DIR "include")
  set(LIB_INSTALL_DIR     "lib")
-diff -urpN SuiteSparse/SuiteSparse_config/SuiteSparse_config.h SuiteSparse.patch/SuiteSparse_config/SuiteSparse_config.h
---- SuiteSparse/SuiteSparse_config/SuiteSparse_config.h	2016-12-08 20:40:57.000000000 +0100
-+++ SuiteSparse.patch/SuiteSparse_config/SuiteSparse_config.h	2019-10-08 13:37:23.188094481 +0200
+diff --git SuiteSparse/SuiteSparse_config/SuiteSparse_config.h SuiteSparse.patch/SuiteSparse_config/SuiteSparse_config.h
+index 664bab64..acec5ebd 100644
+--- SuiteSparse/SuiteSparse_config/SuiteSparse_config.h
++++ SuiteSparse.patch/SuiteSparse_config/SuiteSparse_config.h
 @@ -45,6 +45,8 @@ extern "C" {
  #include <limits.h>
  #include <stdlib.h>
