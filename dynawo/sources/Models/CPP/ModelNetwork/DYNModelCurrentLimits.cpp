@@ -90,12 +90,8 @@ ModelCurrentLimits::evalG(const string& /*componentName*/, const double& t, cons
   assert(openingAuthorized_.size() == static_cast<size_t>(nbLimits_) && "Mismatching number of limits and vector sizes");
   for (int i = 0; i < nbLimits_; ++i) {
     // ================== Due to IIDM convention ============
-    double limit = limits_[i];
-    bool limitActivated = limitActivated_[i];
-    if (i > 0) {
-      limit = limits_[i - 1];
-      limitActivated = limitActivated_[i - 1];
-    }
+    double limit = (i > 0)?limits_[i - 1]:limits_[i];
+    bool limitActivated = (i > 0)?limitActivated_[i - 1]:limitActivated_[i];
     // =======================================================
 
     g[0 + 3 * i] = (current > limit && !activated_[i] && limitActivated && !(desactivate > 0)) ? ROOT_UP : ROOT_DOWN;  // I > Imax
