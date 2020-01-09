@@ -44,8 +44,12 @@ set_environment() {
   export LD_LIBRARY_PATH=$DYNAWO_INSTALL_DIR/lib:$LD_LIBRARY_PATH
 
   export_var_env DYNAWO_INSTALL_OPENMODELICA=$DYNAWO_INSTALL_DIR/OpenModelica
-  omc_version=$($DYNAWO_INSTALL_OPENMODELICA/bin/omcDynawo --version | cut -d v -f 2)
-  export_var_env DYNAWO_OPENMODELICA_VERSION=${omc_version//./_}
+  if [ -x "$(command -v $DYNAWO_INSTALL_OPENMODELICA/bin/omcDynawo)" ]; then
+    omc_version=$($DYNAWO_INSTALL_OPENMODELICA/bin/omcDynawo --version | cut -d v -f 2)
+    export_var_env DYNAWO_OPENMODELICA_VERSION=${omc_version//./_}
+  else
+    export_var_env DYNAWO_OPENMODELICA_VERSION=NOT-FOUND
+  fi
 
   export_var_env DYNAWO_ADEPT_INSTALL_DIR=$DYNAWO_INSTALL_DIR
   export_var_env DYNAWO_SUITESPARSE_INSTALL_DIR=$DYNAWO_INSTALL_DIR

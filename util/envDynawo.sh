@@ -1787,9 +1787,9 @@ create_distrib_with_omc() {
   if [ "$DYNAWO_COMPILER" = "GCC" ]; then
     gcc_version=$($DYNAWO_C_COMPILER -dumpversion)
     if [ $(echo $gcc_version | cut -d '.' -f 1) -lt 5 ]; then
-      sed -i 's/FLAGS="$FLAGS -std=c++98"/FLAGS="$FLAGS -std=c++98 -D_GLIBCXX_USE_CXX11_ABI=0"/' $DYNAWO_DEPLOY_DIR/sbin/compileCppModelicaModelInDynamicLib
+      sed -i 's/-std=c++98/-std=c++98 -D_GLIBCXX_USE_CXX11_ABI=0/' $DYNAWO_DEPLOY_DIR/sbin/compileCppModelicaModelInDynamicLib.cmake
     elif [ $(echo $gcc_version | cut -d '.' -f 1) -eq 5 -a $(echo $gcc_version | cut -d '.' -f 2) -lt 1 ]; then
-      sed -i 's/FLAGS="$FLAGS -std=c++98"/FLAGS="$FLAGS -std=c++98 -D_GLIBCXX_USE_CXX11_ABI=0"/' $DYNAWO_DEPLOY_DIR/sbin/compileCppModelicaModelInDynamicLib
+      sed -i 's/-std=c++98/-std=c++98 -D_GLIBCXX_USE_CXX11_ABI=0/' $DYNAWO_DEPLOY_DIR/sbin/compileCppModelicaModelInDynamicLib.cmake
     fi
   fi
 
